@@ -1,0 +1,11 @@
+.p-dropdown {
+  width: 75%;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+}
+
+.p-dropdown-label {
+  font-size: 0.9rem;
+  line-height: 1rem;
+  padding: 1px;
+}

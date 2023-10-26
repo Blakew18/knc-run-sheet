@@ -27,8 +27,9 @@ export const getOriginalPanelStock = async (dbPath, provider, arch) => {
     );
     const materials = await cvDatabase.query(mssqlAllPanelStockQuery);
     return materials.map((i) => ({
+      cvMaterialID: i.MatDBID,
       cvMaterialName: i.Name,
-      cvMaterialQty: i.qty,
+      materialQuantity: i.qty,
     }));
   } catch (error) {
     console.log(error);

@@ -6,20 +6,27 @@ import { plugins } from "./webpack.plugins";
 rules.push(
   {
     test: /\.css$/,
-    use: [{ loader: "style-loader" }, { loader: "css-loader" }],
+    use: [
+      { loader: "style-loader" },
+      { loader: "css-loader" },
+      { loader: "postcss-loader" },
+    ],
   },
   {
     test: /\.(jpe?g|png|gif|eot|svg)(\?[a-z0-9=.]+)?$/,
     use: [
       {
-        loader: "file-loader",
+        loader: "url-loader",
+        options: {
+          limit: 250000,
+        },
       },
     ],
-  },
-  {
-    test: /\.(woff|woff2|eot|ttf)$/,
-    use: { loader: "url-loader" },
   }
+  // {
+  //   test: /\.(woff|woff2|eot|ttf)$/,
+  //   use: { loader: "url-loader" },
+  // }
 );
 
 export const rendererConfig: Configuration = {

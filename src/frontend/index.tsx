@@ -2,11 +2,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ChakraProvider } from "@chakra-ui/react";
-
+import { HashRouter, Route, Routes } from "react-router-dom";
+import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
+import "primereact/resources/primereact.min.css"; //core css
+import "primeicons/primeicons.css"; //icons
 //Local Imports
+import "./index.css";
 import RootStoreProvider from "./providers/RootStoreProvider";
-import theme from "./theme";
+import App from "./components/App";
+import "primereact/resources/themes/saga-blue/theme.css";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -15,13 +19,16 @@ const queryClient = new QueryClient();
 
 root.render(
   <React.Fragment>
-    <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={theme} cssVarsRoot={undefined}>
+    <PrimeReactProvider value={{ unstyled: false, pt: {} }}>
+      <QueryClientProvider client={queryClient}>
         <RootStoreProvider>
-          <h1>Hello World!</h1>
-          <p>My First App</p>
+          <HashRouter>
+            <Routes>
+              <Route path="/" element={<App />} />
+            </Routes>
+          </HashRouter>
         </RootStoreProvider>
-      </ChakraProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </PrimeReactProvider>
   </React.Fragment>
 );
