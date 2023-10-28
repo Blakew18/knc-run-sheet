@@ -13,7 +13,9 @@ import {
   getComputerName,
   getAvailableBrandsFromCloud,
   getMaterialOptions,
+  getFinishOptions,
 } from "../providers/Services";
+import MaterialFinishesModel from "./material-finishes-model";
 
 export const RootStoreModel = types
   .model("RootStore", {
@@ -30,6 +32,7 @@ export const RootStoreModel = types
       })
     ),
     materialOptions: types.array(MaterialNameModel),
+    finishOptions: types.array(MaterialFinishesModel),
   })
   .views((self) => {
     return {
@@ -41,9 +44,22 @@ export const RootStoreModel = types
           (material) => material.materialNameID === id
         );
       },
+      materialFinishByID(id: number) {
+        return self.finishOptions.find(
+          (finish) => finish.materialFinishID === id
+        );
+      },
       get uniqueMaterialIndentifier() {
         const existingIds = self.materialOptions.map(
           (material) => material.materialNameID
+        );
+        if (existingIds.length === 0) return 1;
+        const maxId = Math.max(...existingIds);
+        return maxId + 1;
+      },
+      get uniqueFinishIndentifier() {
+        const existingIds = self.finishOptions.map(
+          (finish) => finish.materialFinishID
         );
         if (existingIds.length === 0) return 1;
         const maxId = Math.max(...existingIds);
@@ -56,6 +72,18 @@ export const RootStoreModel = types
             name: material.materialNameName,
             id: material.materialNameID,
           }));
+      },
+      materialFinishOptions(materialNameID: number) {
+        const finishOptions = self.finishOptions
+          .filter(
+            (finish) => finish.materialFinishMaterialID === materialNameID
+          )
+          .map((finish) => ({
+            name: finish.materialFinishName,
+            id: finish.materialFinishID,
+          }));
+
+        return finishOptions;
       },
     };
   })
@@ -76,6 +104,7 @@ export const setupRootStore = async () => {
   const defaultMaterials = await setupMaterialModel();
   const initBrands = await getAvailableBrandsFromCloud();
   const initMaterialOptions = await getMaterialOptions();
+  const initFinishOptions = await getFinishOptions();
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",
     computerName: getComputerName(),
@@ -85,6 +114,7 @@ export const setupRootStore = async () => {
     materials: defaultMaterials,
     materialBrands: initBrands,
     materialOptions: initMaterialOptions,
+    finishOptions: initFinishOptions,
   });
   console.log("Root Store Initilizing");
   return rs;

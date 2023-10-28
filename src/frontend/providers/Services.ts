@@ -13,12 +13,22 @@ import MaterialModel, { MaterialModelType } from "../models/material-model";
 import MaterialNameModel, {
   MaterialNameModelType,
 } from "../models/material-name-model";
+import MaterialFinishesModel, {
+  MaterialFinishesModelType,
+} from "../models/material-finishes-model";
 
 type MaterialOptionsType = {
   PanelStockID: number;
   PanelStockName: string;
   PanelStockBrand: string;
   PanelStockJPG: string;
+};
+
+type FinishOptionType = {
+  FinishID: number;
+  FinishName: string;
+  FinishImage: string;
+  material: MaterialOptionsType;
 };
 
 const expressPort = ipcRenderer.sendSync("get-express-port");
@@ -87,7 +97,7 @@ export const setupMaterialModel = async (): Promise<MaterialModelType[]> => {
   const materials: MaterialModelType[] = (
     await localRequestInstance.get(`all-panel-stock${testConnString}`)
   ).data.map((material: MaterialModelType) => {
-    return MaterialModel.create(material);
+    return MaterialModel.create({ ...material, materialNotesSwitch: false });
   });
   return materials;
 };
@@ -108,4 +118,18 @@ export const getMaterialOptions = async () => {
     });
   });
   return materialOptions;
+};
+
+export const getFinishOptions = async () => {
+  const finishOptions: MaterialFinishesModelType[] = (
+    await cloudRequestInstance.get(`panelstock/finishes/all`)
+  ).data.map((finish: FinishOptionType) => {
+    return MaterialFinishesModel.create({
+      materialFinishID: finish.FinishID,
+      materialFinishName: finish.FinishName,
+      materialFinishImage: finish.FinishImage,
+      materialFinishMaterialID: finish.material.PanelStockID,
+    });
+  });
+  return finishOptions;
 };

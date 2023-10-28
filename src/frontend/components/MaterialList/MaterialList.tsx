@@ -11,6 +11,9 @@ import { MaterialModelType } from "../../models/material-model";
 //Import Table Selectors
 import BrandSelector from "./MaterialSelectors/brandSelector";
 import NameSelector from "./MaterialSelectors/nameSelector";
+import FinishSelector from "./MaterialSelectors/finishSelector";
+import NotesSwitch from "./MaterialSelectors/notesSwitch";
+import ImageSwatch from "./MaterialSelectors/imageSwatch";
 
 const MaterialList: React.FC = observer(() => {
   const rootStore: RootStoreType = useRootStore();
@@ -23,15 +26,32 @@ const MaterialList: React.FC = observer(() => {
     return <NameSelector material={material} />;
   };
 
+  const finishSelector = (material: MaterialModelType) => {
+    return <FinishSelector material={material} />;
+  };
+
+  const noteSwitch = (material: MaterialModelType) => {
+    return <NotesSwitch material={material} />;
+  };
+
+  const imageSwatch = (material: MaterialModelType) => {
+    return <ImageSwatch material={material} />;
+  };
+
   return (
     <div className="h-full p-4">
       <DataTable
         value={rootStore.materials}
+        size="normal"
         scrollable
         scrollHeight="100%"
         style={{ height: "100%" }}
       >
-        <Column field="materialImage" header="Image"></Column>
+        <Column
+          field="materialImage"
+          header="Image"
+          body={imageSwatch}
+        ></Column>
         <Column field="materialQuantity" header="Quantity"></Column>
         <Column field="cvMaterialName" header="CV Material Name"></Column>
         <Column
@@ -44,8 +64,13 @@ const MaterialList: React.FC = observer(() => {
           header="Material Name"
           body={nameSelector}
         ></Column>
-        <Column field="materialFinish" header="Finish"></Column>
-        <Column field="materialNotes" header="Notes"></Column>
+        <Column
+          field="materialFinish"
+          header="Finish"
+          body={finishSelector}
+        ></Column>
+        <Column field="materialNotes" header="Notes" body={noteSwitch}></Column>
+        <Column field="edgeqty" header="Edging Qty"></Column>
         <Column field="materialNextSheet" header="Next Sheet"></Column>
         <Column field="materialCutBy" header="Cut By"></Column>
       </DataTable>

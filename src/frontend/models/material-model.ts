@@ -6,7 +6,9 @@ import _ from "lodash";
 import MaterialNameModel, {
   MaterialNameModelType,
 } from "./material-name-model";
-import MaterialFinishesModel from "./material-finishes-model";
+import MaterialFinishesModel, {
+  MaterialFinishesModelType,
+} from "./material-finishes-model";
 
 const MaterialModel = types
   .model("MaterialModel", {
@@ -17,6 +19,7 @@ const MaterialModel = types
     materialName: types.maybe(MaterialNameModel),
     materialFinish: types.maybe(MaterialFinishesModel),
     materialNotes: types.maybe(types.string),
+    materialNotesSwitch: types.boolean,
   })
   .actions((self) => {
     return {
@@ -25,7 +28,12 @@ const MaterialModel = types
       },
       updateMaterialName(material: MaterialNameModelType) {
         self.materialName = _.cloneDeep(material);
-        console.log(self.materialName);
+      },
+      updateFinishName(finish: MaterialFinishesModelType) {
+        self.materialFinish = _.cloneDeep(finish);
+      },
+      updateNotesSwitch(status: boolean) {
+        self.materialNotesSwitch = status;
       },
     };
   });

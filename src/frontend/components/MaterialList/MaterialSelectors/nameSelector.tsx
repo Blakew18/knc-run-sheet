@@ -20,7 +20,7 @@ type DropDownSelectorObject = {
   id: number;
 };
 
-const nameSelector: React.FC<NameSelectorProps> = observer(({ material }) => {
+const NameSelector: React.FC<NameSelectorProps> = observer(({ material }) => {
   const rootStore: RootStoreType = useRootStore();
 
   const ensureDropDownSelectorObject = (
@@ -57,9 +57,10 @@ const nameSelector: React.FC<NameSelectorProps> = observer(({ material }) => {
       options={rootStore.materialNameOptions(material.materialBrand)}
       optionLabel="name"
       editable
+      filter
       placeholder="Select Material Brand"
     />
   );
 });
 
-export default nameSelector;
+export default NameSelector;
