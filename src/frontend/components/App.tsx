@@ -4,6 +4,9 @@ import React from "react";
 //Local Imports
 import Header from "./Header/Header";
 import JobInfo from "./JobInfo/JobInfo";
+import JobSupplyInfo from "./JobSupplyInfo/JobSupplyInfo";
+import JobNotes from "./JobNotes/JobNotes";
+import MaterialList from "./MaterialList/MaterialList";
 
 const App: React.FC = () => {
   return (
@@ -14,18 +17,16 @@ const App: React.FC = () => {
       <div className="h-[22%] ">
         <JobInfo />
       </div>
-      <div className="h-[30%] bg-slate-500">
-        <h1>HI</h1>
+      <div className="h-[35%] ">
+        <MaterialList />
       </div>
-      <div className="h-[10%] bg-slate-400">
-        <h1>HI</h1>
+      <div className="h-[8%] ">
+        <JobSupplyInfo />
       </div>
-      <div className="h-[20%] bg-slate-500">
-        <h1>HI</h1>
+      <div className="h-[22%] ">
+        <JobNotes />
       </div>
-      <div className="h-[10%] bg-slate-400">
-        <h1>HI</h1>
-      </div>
+      <div className="h-[5%] "></div>
     </div>
   );
 };

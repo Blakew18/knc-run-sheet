@@ -9,6 +9,27 @@ const jobTypeOptions = [
   "Supply Cabinets",
   "Urban Pad Furniture",
 ];
+const jobStackingDetailsOptions = [
+  "KNC Starndard Trolley with Cabinet Numbers",
+  "UPF Standard Trolley - Urban Pad Furniture",
+  "SC Pallet - 1200 x 1200 Supply Cabinets",
+  "SC Pallet - 1700 x 1200 Supply Cabinets",
+  "SC Pallet - 2400 x 1200 Supply Cabinets",
+  "SC Standard Trolley - Supply Cabinets",
+];
+
+const jobAssemblyDetailsOptions = [
+  "KNC Queensland",
+  "Supply Cabinets",
+  "Urban Pad Furniture",
+  "Customer / Flat Pack",
+];
+
+const jobPaymentTermsOptions = [
+  "Pay Upfront",
+  "14 Days",
+  "30 Days | 5% Surcharge",
+];
 
 const JobInformationModel = types
   .model("JobInformationModel", {
@@ -20,25 +41,18 @@ const JobInformationModel = types
     jobSetOutBy: types.maybe(types.string),
     jobNestedBy: types.maybe(types.string),
     jobNestingComputer: types.string,
-    jobStackingDetails: types.enumeration("JobStackingDetails", [
-      "KNC Starndard Trolley with Cabinet Numbers",
-      "UPF Standard Trolley - Urban Pad Furniture",
-      "SC Pallet - 1200 x 1200 Supply Cabinets",
-      "SC Pallet - 1700 x 1200 Supply Cabinets",
-      "SC Pallet - 2400 x 1200 Supply Cabinets",
-      "SC Standard Trolley - Supply Cabinets",
-    ]),
-    jobAssemblyDetails: types.enumeration("JobAssemblyDetails", [
-      "KNC Queensland",
-      "Supply Cabinets",
-      "Urban Pad Furniture",
-      "Customer / Flat Pack",
-    ]),
-    jobPaymentTerms: types.enumeration("JobPaymentTerms", [
-      "Pay Upfront",
-      "14 Days",
-      "30 Days | 5% Surcharge",
-    ]),
+    jobStackingDetails: types.enumeration(
+      "JobStackingDetails",
+      jobStackingDetailsOptions
+    ),
+    jobAssemblyDetails: types.enumeration(
+      "JobAssemblyDetails",
+      jobAssemblyDetailsOptions
+    ),
+    jobPaymentTerms: types.enumeration(
+      "JobPaymentTerms",
+      jobPaymentTermsOptions
+    ),
     jobSetOutNotes: types.maybe(types.string),
   })
   .views((self) => {
@@ -49,14 +63,32 @@ const JobInformationModel = types
           value: option,
         }));
       },
+      get jobStackingDetailsOptions() {
+        return jobStackingDetailsOptions.map((option) => ({
+          name: option,
+          value: option,
+        }));
+      },
+      get jobAssemblyDetailsOptions() {
+        return jobAssemblyDetailsOptions.map((option) => ({
+          name: option,
+          value: option,
+        }));
+      },
+      get jobPaymentTermsOptions() {
+        return jobPaymentTermsOptions.map((option) => ({
+          name: option,
+          value: option,
+        }));
+      },
       get jobImage() {
         switch (self.jobType) {
           case "KNC Queesnland":
-            return "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc1uRzlkpSeFYLk3nf04hkF9RapDMgTrJpp9keNejrfM0m_dQ1IsSz4v6sSmChtSK-nis&usqp=CAU";
+            return "static://assets/knc.svg";
           case "Supply Cabinets":
-            return "https://kncqueensland.com.au/__static/05c6f4ff081eaec3/image_quad";
+            return "static://assets/supplyCabinets.svg";
           case "Urban Pad Furniture":
-            return "https://cdn11.bigcommerce.com/s-3zg1svpyww/images/stencil/250x100/urban_pad_logo2_1692076588__66187.original.png";
+            return "static://assets/urbanPad.svg";
           default:
             return "";
         }
@@ -87,6 +119,22 @@ const JobInformationModel = types
       },
       setJobNestedBy(jobNestedBy: string) {
         self.jobNestedBy = jobNestedBy;
+        return;
+      },
+      setJobStackingDetails(jobStackingDetails: string) {
+        self.jobStackingDetails = jobStackingDetails;
+        return;
+      },
+      setJobAssemblyDetails(jobAssemblyDetails: string) {
+        self.jobAssemblyDetails = jobAssemblyDetails;
+        return;
+      },
+      setJobPaymentTerms(jobPaymentTerms: string) {
+        self.jobPaymentTerms = jobPaymentTerms;
+        return;
+      },
+      setJobSetOutNotes(jobSetOutNotes: string) {
+        self.jobSetOutNotes = jobSetOutNotes;
         return;
       },
     };

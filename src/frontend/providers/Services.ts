@@ -9,22 +9,32 @@ import JobInformationModel, {
 import CabinetCountModel, {
   CabinetCountModelType,
 } from "../models/cabinet-count-model";
+import MaterialModel, { MaterialModelType } from "../models/material-model";
 import MaterialNameModel, {
   MaterialNameModelType,
 } from "../models/material-name-model";
+
+type MaterialOptionsType = {
+  PanelStockID: number;
+  PanelStockName: string;
+  PanelStockBrand: string;
+  PanelStockJPG: string;
+};
 
 const expressPort = ipcRenderer.sendSync("get-express-port");
 const hostname = ipcRenderer.sendSync("get-hostname");
 const appVersion = ipcRenderer.sendSync("get-app-version");
 const expressAPI = `http://localhost:${expressPort}/api/`;
+const couldAPI = `http://localhost:5500/`;
 
 const testConnString = `?dbPath=C:/ProgramData/Hexagon/CABINET VISION/S2M 2022/Database/PSNC-CV.accdb&provider=Microsoft.ACE.OLEDB.12.0&arch=true`;
 
-console.log(appVersion, expressAPI);
-
 const localRequestInstance = axios.create({
   baseURL: expressAPI,
-  timeout: 10000,
+});
+
+const cloudRequestInstance = axios.create({
+  baseURL: couldAPI,
 });
 
 export const setupJobInformationModel =
@@ -45,6 +55,19 @@ export const setupJobInformationModel =
     });
   };
 
+export const getAvailableBrandsFromCloud = async (): Promise<string[]> => {
+  const brands: string[] = (
+    await cloudRequestInstance.get(`panelstock/brands`)
+  ).data.map((brand: { panelstock_PanelStockBrand: string }) => {
+    return {
+      name: brand.panelstock_PanelStockBrand,
+      id: brand.panelstock_PanelStockBrand,
+    };
+  });
+  console.log(brands);
+  return brands;
+};
+
 export const setupCabinetCountModel =
   async (): Promise<CabinetCountModelType> => {
     //This Seems Pointlessly ASYNC But eventualy we may try to read the CV DB to get this info
@@ -60,15 +83,29 @@ export const setupCabinetCountModel =
     });
   };
 
-export const setupMaterialModel = async (): Promise<
-  MaterialNameModelType[]
-> => {
-  const materials: MaterialNameModelType[] = (
+export const setupMaterialModel = async (): Promise<MaterialModelType[]> => {
+  const materials: MaterialModelType[] = (
     await localRequestInstance.get(`all-panel-stock${testConnString}`)
-  ).data;
+  ).data.map((material: MaterialModelType) => {
+    return MaterialModel.create(material);
+  });
   return materials;
 };
 
 export const getComputerName = (): string => {
   return hostname;
+};
+
+export const getMaterialOptions = async () => {
+  const materialOptions: MaterialNameModelType[] = (
+    await cloudRequestInstance.get(`panelstock`)
+  ).data.map((material: MaterialOptionsType) => {
+    return MaterialNameModel.create({
+      materialNameID: material.PanelStockID,
+      materialNameName: material.PanelStockName,
+      materialNameBrand: material.PanelStockBrand,
+      materialNameImage: material.PanelStockJPG,
+    });
+  });
+  return materialOptions;
 };

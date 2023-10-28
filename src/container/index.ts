@@ -1,5 +1,5 @@
 //NMP Imports
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, protocol, net } from "electron";
 import portscanner from "portscanner";
 import path from "path";
 import isDev from "electron-is-dev";
@@ -33,6 +33,12 @@ if (require("electron-squirrel-startup")) {
 }
 
 app.whenReady().then(async () => {
+  protocol.handle("static", (request) => {
+    const fileUrl = request.url.replace("static://", "");
+    const filePath = path.join(app.getAppPath(), ".webpack/renderer", fileUrl);
+    return net.fetch(filePath);
+  });
+
   //Create New Window
   console.log(os.hostname());
   const mainWindow = new BrowserWindow({

@@ -10,6 +10,7 @@ import "primeicons/primeicons.css"; //icons
 import "./index.css";
 import RootStoreProvider from "./providers/RootStoreProvider";
 import App from "./components/App";
+import FileNameSettings from "./components/Settings/FileNameSelector";
 import "primereact/resources/themes/saga-blue/theme.css";
 
 const root = ReactDOM.createRoot(

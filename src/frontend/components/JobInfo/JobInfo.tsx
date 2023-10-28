@@ -18,11 +18,7 @@ const JobInfo: React.FC = observer(() => {
       <div className="basis-1/2 px-4 h-full">
         <JobInfoTable />
       </div>
-      <img
-        className="max-h-[60%]"
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc1uRzlkpSeFYLk3nf04hkF9RapDMgTrJpp9keNejrfM0m_dQ1IsSz4v6sSmChtSK-nis&usqp=CAU"
-        alt="Image"
-      />
+      <img className="max-h-[60%]" src={jobInformation.jobImage} alt="Image" />
     </div>
   );
 });
