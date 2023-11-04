@@ -10,5 +10,8 @@ GROUP BY m.MatDBID;
 `;
 
 export const mssqlUpdatePaneStockQuery = (currentMaterial) => {
-  `UPDATE Materials SET Name = "${currentMaterial.newName}" WHERE name = "${currentMaterial.cvMaterial}"`;
+  console.log(
+    `UPDATE Materials SET Name = "${currentMaterial.materialNewName}" WHERE MatDBID = ${currentMaterial.cvMaterialID}`
+  );
+  return `UPDATE Materials SET Name = "${currentMaterial.materialNewName}" WHERE MatDBID = ${currentMaterial.cvMaterialID}`;
 };

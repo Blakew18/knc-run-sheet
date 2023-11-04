@@ -54,10 +54,10 @@ export const updateCabinetVisionPanelStock = async (
     );
 
     const promises = data.map((currentMaterial) => {
-      const query = mssqlUpdatePaneStockQuery(currentMaterial); // Placeholder for parameters
-      return cvDatabase.execute(query); // Assuming `execute` supports prepared statements
+      const query = mssqlUpdatePaneStockQuery(currentMaterial);
+      return cvDatabase.execute(query);
     });
-
+    // console.log(promises);
     await Promise.all(promises);
 
     return true;

@@ -4,8 +4,6 @@ import { observer } from "mobx-react";
 import { Checkbox, CheckboxChangeEvent } from "primereact/checkbox";
 
 //Local Imports
-import { useRootStore } from "../../../providers/RootStoreProvider";
-import { RootStoreType } from "../../../models/root-store";
 import { MaterialModelType } from "../../../models/material-model";
 
 type BrandSelectorProps = {
@@ -13,8 +11,6 @@ type BrandSelectorProps = {
 };
 
 const NotesSwitch: React.FC<BrandSelectorProps> = observer(({ material }) => {
-  const rootStore: RootStoreType = useRootStore();
-
   const updateMaterialNotes = (e: CheckboxChangeEvent) => {
     material.updateNotesSwitch(e.checked);
   };

@@ -1,5 +1,5 @@
 //NPM Imports
-import { types, Instance } from "mobx-state-tree";
+import { types, Instance, flow } from "mobx-state-tree";
 
 //Local Imports
 import MaterialModel from "./material-model";
@@ -14,6 +14,7 @@ import {
   getAvailableBrandsFromCloud,
   getMaterialOptions,
   getFinishOptions,
+  updateCabinetVisionMaterials,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 
@@ -89,6 +90,11 @@ export const RootStoreModel = types
   })
   .actions((self) => {
     return {
+      rsUpdateCabinetVisionmaterials: flow(
+        function* rsUpdateCabinetVisionmaterials() {
+          yield updateCabinetVisionMaterials(self.materials);
+        }
+      ),
       setJobStatus(status: string) {
         self.jobStatus = status;
         return;

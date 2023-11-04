@@ -97,7 +97,11 @@ export const setupMaterialModel = async (): Promise<MaterialModelType[]> => {
   const materials: MaterialModelType[] = (
     await localRequestInstance.get(`all-panel-stock${testConnString}`)
   ).data.map((material: MaterialModelType) => {
-    return MaterialModel.create({ ...material, materialNotesSwitch: false });
+    return MaterialModel.create({
+      ...material,
+      materialNotesSwitch: false,
+      materialEdgeQty: 0,
+    });
   });
   return materials;
 };
@@ -132,4 +136,18 @@ export const getFinishOptions = async () => {
     });
   });
   return finishOptions;
+};
+
+export const updateCabinetVisionMaterials = async (
+  materials: MaterialModelType[]
+): Promise<void> => {
+  try {
+    await localRequestInstance.put(
+      `/all-panel-stock${testConnString}`,
+      materials
+    );
+    return;
+  } catch (error) {
+    throw new Error(error);
+  }
 };

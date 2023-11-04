@@ -14,9 +14,13 @@ const Header: React.FC = observer(() => {
     if (e.value) rootStore.setJobStatus(e.value);
   };
 
+  const updateCVMaterials = async () => {
+    await rootStore.rsUpdateCabinetVisionmaterials();
+  };
+
   return (
     <div className="flex h-full justify-around items-center">
-      <Button label="Submit" icon="pi pi-check" />
+      <Button label="Submit" icon="pi pi-check" onClick={updateCVMaterials} />
       <div className="text-3xl font-bold underline decoration-solid">
         CNC Run Sheet
       </div>

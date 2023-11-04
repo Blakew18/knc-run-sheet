@@ -18,7 +18,14 @@ const imageSwatch: React.FC<BrandSelectorProps> = observer(({ material }) => {
 
   return (
     <div className="card flex justify-content-center">
-      <Image src={imageURL} alt="Image" width="24" height="24" preview />
+      <Image
+        src={imageURL}
+        alt="Image"
+        width="24"
+        height="24"
+        preview
+        style={{ height: "24px", width: "24px", overflow: "hidden" }}
+      />
     </div>
   );
 });

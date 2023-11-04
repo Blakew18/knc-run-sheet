@@ -14,6 +14,7 @@ import NameSelector from "./MaterialSelectors/nameSelector";
 import FinishSelector from "./MaterialSelectors/finishSelector";
 import NotesSwitch from "./MaterialSelectors/notesSwitch";
 import ImageSwatch from "./MaterialSelectors/imageSwatch";
+import EdgeQtySelector from "./MaterialSelectors/edgeQtySelector";
 
 const MaterialList: React.FC = observer(() => {
   const rootStore: RootStoreType = useRootStore();
@@ -36,6 +37,10 @@ const MaterialList: React.FC = observer(() => {
 
   const imageSwatch = (material: MaterialModelType) => {
     return <ImageSwatch material={material} />;
+  };
+
+  const edgeQtySelector = (material: MaterialModelType) => {
+    return <EdgeQtySelector material={material} />;
   };
 
   return (
@@ -70,7 +75,11 @@ const MaterialList: React.FC = observer(() => {
           body={finishSelector}
         ></Column>
         <Column field="materialNotes" header="Notes" body={noteSwitch}></Column>
-        <Column field="edgeqty" header="Edging Qty"></Column>
+        <Column
+          field="edgeqty"
+          header="Edging Qty"
+          body={edgeQtySelector}
+        ></Column>
         <Column field="materialNextSheet" header="Next Sheet"></Column>
         <Column field="materialCutBy" header="Cut By"></Column>
       </DataTable>
