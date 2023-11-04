@@ -10,7 +10,7 @@ import "primeicons/primeicons.css"; //icons
 import "./index.css";
 import RootStoreProvider from "./providers/RootStoreProvider";
 import App from "./components/App";
-import FileNameSettings from "./components/Settings/FileNameSelector";
+import Settings from "./components/Settings/Settings";
 import "primereact/resources/themes/saga-blue/theme.css";
 
 const root = ReactDOM.createRoot(
@@ -25,7 +25,7 @@ root.render(
         <RootStoreProvider>
           <HashRouter>
             <Routes>
-              <Route path="/" element={<App />} />
+              <Route path="/" element={<Settings />} />
             </Routes>
           </HashRouter>
         </RootStoreProvider>

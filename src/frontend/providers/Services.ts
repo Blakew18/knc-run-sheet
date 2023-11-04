@@ -9,6 +9,9 @@ import JobInformationModel, {
 import CabinetCountModel, {
   CabinetCountModelType,
 } from "../models/cabinet-count-model";
+import SettingsInformationModel, {
+  SettingsInformationModelType,
+} from "../models/settings-information-model";
 import MaterialModel, { MaterialModelType } from "../models/material-model";
 import MaterialNameModel, {
   MaterialNameModelType,
@@ -16,6 +19,7 @@ import MaterialNameModel, {
 import MaterialFinishesModel, {
   MaterialFinishesModelType,
 } from "../models/material-finishes-model";
+import PrinterModel from "../models/printer.model";
 
 type MaterialOptionsType = {
   PanelStockID: number;
@@ -35,7 +39,7 @@ const expressPort = ipcRenderer.sendSync("get-express-port");
 const hostname = ipcRenderer.sendSync("get-hostname");
 const appVersion = ipcRenderer.sendSync("get-app-version");
 const expressAPI = `http://localhost:${expressPort}/api/`;
-const couldAPI = `http://localhost:5500/`;
+const couldAPI = `https://www.intique.online//`;
 
 const testConnString = `?dbPath=C:/ProgramData/Hexagon/CABINET VISION/S2M 2022/Database/PSNC-CV.accdb&provider=Microsoft.ACE.OLEDB.12.0&arch=true`;
 
@@ -151,3 +155,37 @@ export const updateCabinetVisionMaterials = async (
     throw new Error(error);
   }
 };
+
+export const loadSettingsFromLocal =
+  async (): Promise<SettingsInformationModelType> => {
+    try {
+      const localSettings = localStorage.getItem("run-sheet-settings");
+      if (localSettings === null || localSettings === undefined)
+        throw new Error("No Settings Found");
+      const localSettingObject = await JSON.parse(localSettings);
+      console.log(localSettingObject);
+      return localSettingObject;
+    } catch (error) {
+      console.log(error);
+      const defaultSettings = SettingsInformationModel.create({
+        outputString: [
+          { id: "name", content: "Name" },
+          { id: "finish", content: "Finish" },
+          { id: "brand", content: "Brand" },
+        ],
+        dataProviders: [],
+        nestSheetPrinter: PrinterModel.create({
+          silent: false,
+          printBackground: false,
+          deviceName: "",
+          color: true,
+          margins: {
+            marginType: "default",
+          },
+          landscape: true,
+          pageSize: "A4",
+        }),
+      });
+      return defaultSettings;
+    }
+  };

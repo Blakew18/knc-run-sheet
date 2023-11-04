@@ -20,6 +20,7 @@ const JobName: React.FC = observer(() => {
       <div className="p-inputgroup h-full">
         <span className="p-inputgroup-addon w-36">Job Name or Address:</span>
         <InputText
+          className="p-invalid"
           id="jobName"
           value={jobInformation.jobName}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

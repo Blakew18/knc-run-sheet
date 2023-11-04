@@ -13,7 +13,7 @@ const JobInfo: React.FC = observer(() => {
   const { jobInformation }: { jobInformation: JobInformationModelType } =
     useRootStore();
   return (
-    <div className="flex h-full items-center justify-around px-2">
+    <div className="flex h-full items-center justify-around px-2 ">
       <img className="max-h-[60%]" src={jobInformation.jobImage} alt="Image" />
       <div className="basis-1/2 px-4 h-full">
         <JobInfoTable />

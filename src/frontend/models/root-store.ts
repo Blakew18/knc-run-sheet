@@ -1,11 +1,14 @@
 //NPM Imports
-import { types, Instance, flow } from "mobx-state-tree";
+import { types, Instance, flow, onSnapshot } from "mobx-state-tree";
 
 //Local Imports
 import MaterialModel from "./material-model";
 import MaterialNameModel from "./material-name-model";
 import JobInformationModel from "./job-information-model";
 import CabinetCountModel from "./cabinet-count-model";
+import SettingsInformationModel, {
+  SettingsInformationModelType,
+} from "./settings-information-model";
 import {
   setupJobInformationModel,
   setupCabinetCountModel,
@@ -15,6 +18,7 @@ import {
   getMaterialOptions,
   getFinishOptions,
   updateCabinetVisionMaterials,
+  loadSettingsFromLocal,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 
@@ -34,6 +38,7 @@ export const RootStoreModel = types
     ),
     materialOptions: types.array(MaterialNameModel),
     finishOptions: types.array(MaterialFinishesModel),
+    settings: SettingsInformationModel,
   })
   .views((self) => {
     return {
@@ -111,6 +116,7 @@ export const setupRootStore = async () => {
   const initBrands = await getAvailableBrandsFromCloud();
   const initMaterialOptions = await getMaterialOptions();
   const initFinishOptions = await getFinishOptions();
+  const initSettings = await loadSettingsFromLocal();
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",
     computerName: getComputerName(),
@@ -121,6 +127,10 @@ export const setupRootStore = async () => {
     materialBrands: initBrands,
     materialOptions: initMaterialOptions,
     finishOptions: initFinishOptions,
+    settings: initSettings,
+  });
+  onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
+    localStorage.setItem("run-sheet-settings", JSON.stringify(settingSnapshot));
   });
   console.log("Root Store Initilizing");
   return rs;

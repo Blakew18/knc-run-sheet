@@ -73,6 +73,20 @@ app.whenReady().then(async () => {
   ipcMain.on("get-app-version", (event) => {
     event.returnValue = app.getVersion();
   });
+  ipcMain.on("get-printers", async function (event) {
+    const contents = mainWindow.webContents;
+    const printers = await contents.getPrintersAsync();
+    event.returnValue = printers;
+  });
+  ipcMain.on("print-run-sheet", (event, arg) => {
+    console.log(arg);
+    const contents = mainWindow.webContents;
+    contents.print(arg, (success, error) => {
+      if (!success) console.log(error);
+      if (!success) event.returnValue = false;
+      event.returnValue = true;
+    });
+  });
 
   //if (process.mainModule.filename.indexOf('app.asar') !== -1) {
   if (__filename.indexOf("app.asar") !== -1) {
