@@ -8,7 +8,7 @@ const DataProviderModel = types.model("DataProviderModel", {
   dataProviderName: types.string,
   dataProviderDBPath: types.string,
   dataProviderArchitecture: types.boolean,
-  dataProviderConnection: types.boolean,
+  dataProviderConnectionType: types.string,
 });
 
 export type DataProviderModelType = Instance<typeof DataProviderModel>;

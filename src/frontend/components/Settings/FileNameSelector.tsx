@@ -51,11 +51,9 @@ const FileNameSettings: React.FC = observer(() => {
     if (!result.destination) {
       return;
     }
-
     const reorderedItems = Array.from(items);
     const [removed] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, removed);
-
     setItems(reorderedItems);
   };
 
@@ -71,13 +69,13 @@ const FileNameSettings: React.FC = observer(() => {
   return (
     <div className="flex flex-col items-center justify-center space-x-4 p-4 ">
       <Toast ref={toast} />
-      <h2>Example</h2>
-      <p>{exampleString()}</p>
+      <h2 className="font-bold"> Example</h2>
+      <p className="font-medium">{exampleString()}</p>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable" direction="horizontal">
           {(provided) => (
             <div
-              className="flex space-x-4 p-4 bg-slate-100 rounded shadow"
+              className="flex p-4 bg-slate-100 rounded shadow"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
@@ -85,7 +83,7 @@ const FileNameSettings: React.FC = observer(() => {
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(provided) => (
                     <div
-                      className="p-4 bg-blue-400 text-white rounded cursor-move"
+                      className=" m-4 p-4 bg-blue-400 text-white rounded cursor-move"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}

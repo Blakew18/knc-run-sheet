@@ -1,8 +1,8 @@
 //NPM Imports
-import React from "react";
 import { observer } from "mobx-react";
-import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import React, { useEffect } from "react";
 
 //Local Imports
 import { useRootStore } from "../../providers/RootStoreProvider";
@@ -18,6 +18,10 @@ import EdgeQtySelector from "./MaterialSelectors/edgeQtySelector";
 
 const MaterialList: React.FC = observer(() => {
   const rootStore: RootStoreType = useRootStore();
+
+  const availableMaterials = () => {
+    return rootStore.materials;
+  };
 
   const brandSelector = (material: MaterialModelType) => {
     return <BrandSelector material={material} />;
@@ -46,7 +50,8 @@ const MaterialList: React.FC = observer(() => {
   return (
     <div className="h-full p-4">
       <DataTable
-        value={rootStore.materials}
+        key={rootStore.materialArrayUniqueID}
+        value={availableMaterials()}
         size="normal"
         scrollable
         scrollHeight="100%"

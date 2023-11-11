@@ -47,7 +47,11 @@ app.put("/api/all-panel-stock", async (req, res) => {
 
 app.get("/api/test", async (req, res) => {
   try {
-    await checkDBConnection(req.body.path, req.body.provider, req.body.arch);
+    await checkDBConnection(
+      req.query.dbPath,
+      req.query.provider,
+      req.query.arch
+    );
     res.status(200).send("Successfully Connected");
   } catch (err) {
     res.status(500).send(err.message);

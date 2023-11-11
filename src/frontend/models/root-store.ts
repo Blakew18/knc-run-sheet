@@ -2,7 +2,7 @@
 import { types, Instance, flow, onSnapshot } from "mobx-state-tree";
 
 //Local Imports
-import MaterialModel from "./material-model";
+import MaterialModel, { MaterialModelType } from "./material-model";
 import MaterialNameModel from "./material-name-model";
 import JobInformationModel from "./job-information-model";
 import CabinetCountModel from "./cabinet-count-model";
@@ -19,6 +19,7 @@ import {
   getFinishOptions,
   updateCabinetVisionMaterials,
   loadSettingsFromLocal,
+  getAvailablePrinters,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 
@@ -39,9 +40,25 @@ export const RootStoreModel = types
     materialOptions: types.array(MaterialNameModel),
     finishOptions: types.array(MaterialFinishesModel),
     settings: SettingsInformationModel,
+    availablePrinters: types.array(
+      types.model({ name: types.string, displayName: types.string })
+    ),
   })
   .views((self) => {
     return {
+      get materialArrayUniqueID() {
+        let total = 0;
+        let multiplier = 2;
+        self.materials.forEach((material) => {
+          const nameAsNumber =
+            parseInt(material.materialNewName?.replace(/^#/, ""), 16) ||
+            multiplier * multiplier * multiplier;
+          total += (material.cvMaterialID + nameAsNumber) * multiplier;
+          multiplier += 1;
+        });
+        console.log(total);
+        return total;
+      },
       get jobStatusOptions() {
         return ["Quote", "Order"];
       },
@@ -91,15 +108,66 @@ export const RootStoreModel = types
 
         return finishOptions;
       },
+      validateRootStoreForUpdate(): { isValid: boolean; errors: string } {
+        let isValid = true;
+        let errors = "";
+        if (!self.computerName) {
+          errors += "Computer Name is required\n";
+          isValid = false;
+        }
+        if (!self.jobInformation.jobName) {
+          errors += "Job Name is required\n";
+          isValid = false;
+        }
+        if (!self.jobInformation.clientJobNumber) {
+          errors += "Client Job Number is required\n";
+          isValid = false;
+        }
+        self.materials.forEach((material) => {
+          if (!material.materialBrand) {
+            errors += `${material.cvMaterialName} Requires Brand\n`;
+            isValid = false;
+          }
+          if (!material.materialName) {
+            errors += `${material.cvMaterialName} Requires Material Name\n`;
+            isValid = false;
+          }
+          if (!material.materialFinish) {
+            errors += `${material.cvMaterialName} Requires Material Finish\n`;
+            isValid = false;
+          }
+        });
+
+        return { isValid: isValid, errors: errors };
+      },
     };
   })
   .actions((self) => {
     return {
+      rsFetchCabinetVisionMaterials: flow(
+        function* rsFetchCabinetVisionMaterials() {
+          const settings = self.settings.currentDataProvider;
+          const materials = yield setupMaterialModel(
+            settings.dataProviderDBPath,
+            settings.dataProviderConnectionType,
+            settings.dataProviderArchitecture
+          );
+          // self.materials = materials;
+          self.materials.splice(0, self.materials.length);
+          materials.forEach((material: MaterialModelType) => {
+            self.materials.push(material);
+          });
+        }
+      ),
       rsUpdateCabinetVisionmaterials: flow(
         function* rsUpdateCabinetVisionmaterials() {
           yield updateCabinetVisionMaterials(self.materials);
         }
       ),
+      rsGetAvailablePrinters: flow(function* rsGetAvailablePrinters() {
+        const printers = yield getAvailablePrinters();
+        self.availablePrinters = printers;
+      }),
       setJobStatus(status: string) {
         self.jobStatus = status;
         return;
@@ -110,13 +178,27 @@ export const RootStoreModel = types
 //Export Root Store and Type
 export type RootStoreType = Instance<typeof RootStoreModel>;
 export const setupRootStore = async () => {
+  const initSettings = await loadSettingsFromLocal();
   const defaultJobInformation = await setupJobInformationModel();
   const defaultCabinetCount = await setupCabinetCountModel();
-  const defaultMaterials = await setupMaterialModel();
+  let defaultMaterials: MaterialModelType[] = [];
+  if (initSettings.currentDataProvider) {
+    const settings = initSettings.currentDataProvider;
+    try {
+      defaultMaterials = await setupMaterialModel(
+        settings.dataProviderDBPath,
+        settings.dataProviderConnectionType,
+        settings.dataProviderArchitecture
+      );
+    } catch (error) {
+      console.log(error);
+      defaultMaterials = [];
+    }
+  }
   const initBrands = await getAvailableBrandsFromCloud();
   const initMaterialOptions = await getMaterialOptions();
   const initFinishOptions = await getFinishOptions();
-  const initSettings = await loadSettingsFromLocal();
+  const availablePrinters = await getAvailablePrinters();
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",
     computerName: getComputerName(),
@@ -128,6 +210,7 @@ export const setupRootStore = async () => {
     materialOptions: initMaterialOptions,
     finishOptions: initFinishOptions,
     settings: initSettings,
+    availablePrinters: availablePrinters,
   });
   onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
     localStorage.setItem("run-sheet-settings", JSON.stringify(settingSnapshot));

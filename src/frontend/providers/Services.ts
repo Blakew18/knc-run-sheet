@@ -19,7 +19,7 @@ import MaterialNameModel, {
 import MaterialFinishesModel, {
   MaterialFinishesModelType,
 } from "../models/material-finishes-model";
-import PrinterModel from "../models/printer.model";
+import PrinterModel from "../models/printer-model";
 
 type MaterialOptionsType = {
   PanelStockID: number;
@@ -34,6 +34,11 @@ type FinishOptionType = {
   FinishImage: string;
   material: MaterialOptionsType;
 };
+
+type printerType = {
+  name: string;
+  displayName: string;
+}[];
 
 const expressPort = ipcRenderer.sendSync("get-express-port");
 const hostname = ipcRenderer.sendSync("get-hostname");
@@ -50,6 +55,13 @@ const localRequestInstance = axios.create({
 const cloudRequestInstance = axios.create({
   baseURL: couldAPI,
 });
+
+export const getAvailablePrinters = async (): Promise<printerType> => {
+  const printers: printerType = await ipcRenderer.sendSync("get-printers");
+  printers.push({ name: "default", displayName: "Default" });
+  console.log(printers);
+  return printers;
+};
 
 export const setupJobInformationModel =
   async (): Promise<JobInformationModelType> => {
@@ -78,7 +90,7 @@ export const getAvailableBrandsFromCloud = async (): Promise<string[]> => {
       id: brand.panelstock_PanelStockBrand,
     };
   });
-  console.log(brands);
+
   return brands;
 };
 
@@ -97,9 +109,15 @@ export const setupCabinetCountModel =
     });
   };
 
-export const setupMaterialModel = async (): Promise<MaterialModelType[]> => {
+export const setupMaterialModel = async (
+  dbPath: string,
+  provider: string,
+  arch: boolean
+): Promise<MaterialModelType[]> => {
   const materials: MaterialModelType[] = (
-    await localRequestInstance.get(`all-panel-stock${testConnString}`)
+    await localRequestInstance.get(
+      `all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`
+    )
   ).data.map((material: MaterialModelType) => {
     return MaterialModel.create({
       ...material,
@@ -163,8 +181,7 @@ export const loadSettingsFromLocal =
       if (localSettings === null || localSettings === undefined)
         throw new Error("No Settings Found");
       const localSettingObject = await JSON.parse(localSettings);
-      console.log(localSettingObject);
-      return localSettingObject;
+      return SettingsInformationModel.create(localSettingObject);
     } catch (error) {
       console.log(error);
       const defaultSettings = SettingsInformationModel.create({
@@ -177,15 +194,35 @@ export const loadSettingsFromLocal =
         nestSheetPrinter: PrinterModel.create({
           silent: false,
           printBackground: false,
-          deviceName: "",
+          deviceName: { name: "default", displayName: "Default" },
           color: true,
-          margins: {
-            marginType: "default",
-          },
+          marginType: "default",
+          marginTop: 2,
+          marginBottom: 2,
+          marginLeft: 2,
+          marginRight: 2,
           landscape: true,
-          pageSize: "A4",
+          pageSizeName: "A4",
+          pageSizeHeight: 3508,
+          pageSizeWidth: 2480,
         }),
       });
       return defaultSettings;
     }
   };
+
+export const verifyDatabaseConnection = async (
+  path: string,
+  provider: string,
+  arch: boolean
+): Promise<boolean> => {
+  try {
+    const verified = await localRequestInstance.get(
+      `/test?dbPath=${path}&provider=${provider}&arch=${arch}`
+    );
+    if (verified.status === 200) return true;
+    return false;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};

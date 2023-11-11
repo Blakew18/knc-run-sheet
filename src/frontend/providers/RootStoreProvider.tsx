@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 //Local Imports
 import { RootStoreType, setupRootStore } from "../models/root-store";
+import LoadingPage from "../components/Loading/Loading";
 
 export const RootStoreContext = createContext<RootStoreType | null>(null);
 
@@ -19,7 +20,7 @@ const RootStoreProvider: React.FC<{ children: React.ReactNode }> = ({
     start();
   }, []);
 
-  if (!rootStore) return <h1>Loading</h1>;
+  if (!rootStore) return <LoadingPage />;
   return (
     <RootStoreContext.Provider value={rootStore}>
       {children}

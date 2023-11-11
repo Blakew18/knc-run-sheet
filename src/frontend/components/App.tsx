@@ -1,33 +1,16 @@
 //NPM Imports
-import React from "react";
-
+import React, { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 //Local Imports
-import Header from "./Header/Header";
-import JobInfo from "./JobInfo/JobInfo";
-import JobSupplyInfo from "./JobSupplyInfo/JobSupplyInfo";
-import JobNotes from "./JobNotes/JobNotes";
-import MaterialList from "./MaterialList/MaterialList";
+import RunSheet from "./RunSheet";
+import Settings from "./Settings/Settings";
 
 const App: React.FC = () => {
   return (
-    <div className="h-screen">
-      <div className="h-[8%]">
-        <Header />
-      </div>
-      <div className="h-[22%] ">
-        <JobInfo />
-      </div>
-      <div className="h-[35%] ">
-        <MaterialList />
-      </div>
-      <div className="h-[8%] ">
-        <JobSupplyInfo />
-      </div>
-      <div className="h-[22%] ">
-        <JobNotes />
-      </div>
-      <div className="h-[5%] "></div>
-    </div>
+    <Routes>
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/" element={<Settings />} />
+    </Routes>
   );
 };
 

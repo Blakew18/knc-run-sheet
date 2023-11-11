@@ -10,13 +10,17 @@ interface MenuBarProps {
 const MenuBar: React.FC<MenuBarProps> = ({ setCurrentMenu }) => {
   const items = [
     {
-      label: "CV Versions",
+      label: "Database Connections",
       expanded: true,
       icon: () => (
-        <img alt="CV" src="static://assets/database.svg" width="100%" />
+        <img
+          alt="Database Connections"
+          src="static://assets/database.svg"
+          width="100%"
+        />
       ),
       command: () => {
-        setCurrentMenu("CV Versions");
+        setCurrentMenu("Database Connections");
       },
     },
     {
