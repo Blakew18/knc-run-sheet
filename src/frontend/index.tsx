@@ -2,8 +2,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Route, Routes } from "react-router-dom";
-import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
+import { HashRouter } from "react-router-dom";
+import { PrimeReactProvider } from "primereact/api";
 
 //CSS Imports
 import "./index.css";
@@ -14,7 +14,6 @@ import "primereact/resources/themes/saga-blue/theme.css";
 //Local Imports
 import RootStoreProvider from "./providers/RootStoreProvider";
 import App from "./components/App";
-import Settings from "./components/Settings/Settings";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

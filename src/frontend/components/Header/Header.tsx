@@ -31,6 +31,7 @@ const Header: React.FC = observer(() => {
     const validStore = rootStore.validateRootStoreForUpdate();
     if (validStore.isValid) {
       await rootStore.rsUpdateCabinetVisionmaterials();
+      await rootStore.rsPrintRunSheet();
       await rootStore.rsFetchCabinetVisionMaterials();
     } else {
       setErrorMessages(validStore.errors);

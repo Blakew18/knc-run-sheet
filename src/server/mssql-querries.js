@@ -8,13 +8,9 @@ import {
   mssqlUpdatePaneStockQuery,
 } from "./mssql-text.js";
 
-if (
-  require.main &&
-  require.main.filename &&
-  require.main.filename.indexOf("app.asar") !== -1
-) {
+if (process.mainModule.filename.indexOf("app.asar") !== -1) {
   // In that case, we need to set the correct path to adodb.js
-  ADODB.PATH = path.join(__dirname, "./resources/adodb.js");
+  ADODB.PATH = "./resources/adodb.js";
 }
 
 //Get Initial Material Data from Database
@@ -52,15 +48,13 @@ export const updateCabinetVisionPanelStock = async (
       `Provider=${provider};Data Source=${dbPath};`,
       arch
     );
-
-    const promises = data.map((currentMaterial) => {
-      const query = mssqlUpdatePaneStockQuery(currentMaterial);
-      return cvDatabase.execute(query);
-    });
-    // console.log(promises);
-    await Promise.all(promises);
-
-    return true;
+    const query = mssqlUpdatePaneStockQuery(data);
+    const updatedMaterial = await cvDatabase.execute(query);
+    if (updatedMaterial) {
+      return true;
+    } else {
+      throw Error("Update Failed");
+    }
   } catch (error) {
     console.log(error);
     throw error;

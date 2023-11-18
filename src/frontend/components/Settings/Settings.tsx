@@ -10,7 +10,7 @@ import PrinterSettings from "./PrinterSettings";
 
 const Settings: React.FC = () => {
   const [currentMenu, setCurrentMenu] = useState<string>(
-    "Nest Sheet Printer Settings"
+    "Database Connections"
   );
 
   const menuSelector = () => {
@@ -23,6 +23,8 @@ const Settings: React.FC = () => {
         return <PrinterSettings />;
       case "Label Printer Settings":
         return <div>Label Printer Settings</div>;
+      case "Import/Export Settings":
+        return <div>Import/Export Settings</div>;
       default:
         return <div>None</div>;
     }
@@ -53,7 +55,7 @@ const Settings: React.FC = () => {
         <h1 className=" text-4xl font-bold">SETTINGS</h1>
       </div>
       <div className="h-[85%] flex justify-around items-center">
-        <Card title={currentMenu} className="h-[80%] w-[55%] relative">
+        <Card title={currentMenu} className="h-[80%] w-[56%] relative">
           {menuSelector()}
         </Card>
       </div>

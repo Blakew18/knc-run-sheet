@@ -54,6 +54,25 @@ const PrinterModel = types
       marginTypeSetAsCustom() {
         return self.marginType === "custom";
       },
+      printerForElectron() {
+        return {
+          silent: self.silent,
+          printBackground: self.printBackground,
+          deviceName: self.deviceName?.name,
+          color: self.color,
+          margins: {
+            marginType: self.marginType,
+          },
+          landscape: self.landscape,
+          pageSize:
+            self.pageSizeName === "Custom"
+              ? {
+                  height: self.pageSizeHeight,
+                  width: self.pageSizeWidth,
+                }
+              : self.pageSizeName,
+        };
+      },
     };
   })
   .actions((self) => {
@@ -102,3 +121,24 @@ const PrinterModel = types
 
 export type PrinterModelType = Instance<typeof PrinterModel>;
 export default PrinterModel;
+
+export type PrinterModelForElectronType = {
+  silent: boolean;
+  printBackground: boolean;
+  deviceName?: string;
+  color: boolean;
+  margins: {
+    marginType: string;
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+  landscape: boolean;
+  pageSize:
+    | string
+    | {
+        height: number;
+        width: number;
+      };
+};

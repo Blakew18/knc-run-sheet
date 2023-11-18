@@ -7,8 +7,6 @@ import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { useRootStore } from "../../../providers/RootStoreProvider";
 import { JobInformationModelType } from "../../../models/job-information-model";
 
-import "./job-type.css";
-
 const JobType: React.FC = observer(() => {
   const { jobInformation }: { jobInformation: JobInformationModelType } =
     useRootStore();
@@ -22,7 +20,7 @@ const JobType: React.FC = observer(() => {
       <div className="p-inputgroup h-full">
         <span className="p-inputgroup-addon w-36">Job Type:</span>
         <Dropdown
-          className="text-xs"
+          className="text-xs run-sheet-dropdown"
           value={jobInformation.jobType}
           options={jobInformation.jobTypeOptions}
           onChange={(e: DropdownChangeEvent) => updateJobType(e.value)}

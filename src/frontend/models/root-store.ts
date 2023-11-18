@@ -18,8 +18,10 @@ import {
   getMaterialOptions,
   getFinishOptions,
   updateCabinetVisionMaterials,
-  loadSettingsFromLocal,
+  loadSettings,
   getAvailablePrinters,
+  printRunSheet,
+  loadSettingsPathfromLS,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 
@@ -43,6 +45,8 @@ export const RootStoreModel = types
     availablePrinters: types.array(
       types.model({ name: types.string, displayName: types.string })
     ),
+    isAdrian: types.boolean,
+    settingsPath: types.string,
   })
   .views((self) => {
     return {
@@ -137,13 +141,30 @@ export const RootStoreModel = types
             isValid = false;
           }
         });
-
+        return { isValid: true, errors: errors };
         return { isValid: isValid, errors: errors };
       },
     };
   })
   .actions((self) => {
     return {
+      rsAdrianRandomiser() {
+        self.isAdrian = false;
+        const randomNumber = Math.floor(Math.random() * 20);
+        if (randomNumber === 5) {
+          if (
+            self.settings.currentDataProvider.dataProviderName
+              .toLowerCase()
+              .includes("adrian") ||
+            self.settings.currentDataProvider.dataProviderDBPath
+              .toLowerCase()
+              .includes("adrian")
+          )
+            self.isAdrian = true;
+        } else {
+          self.isAdrian = false;
+        }
+      },
       rsFetchCabinetVisionMaterials: flow(
         function* rsFetchCabinetVisionMaterials() {
           const settings = self.settings.currentDataProvider;
@@ -164,6 +185,12 @@ export const RootStoreModel = types
           yield updateCabinetVisionMaterials(self.materials);
         }
       ),
+      rsPrintRunSheet: flow(function* rsPrintRunSheet() {
+        const printerObject =
+          self.settings.nestSheetPrinter.printerForElectron();
+        const printed = yield printRunSheet(printerObject);
+        return printed;
+      }),
       rsGetAvailablePrinters: flow(function* rsGetAvailablePrinters() {
         const printers = yield getAvailablePrinters();
         self.availablePrinters = printers;
@@ -172,13 +199,18 @@ export const RootStoreModel = types
         self.jobStatus = status;
         return;
       },
+      setSettingPath(path: string) {
+        self.settingsPath = path;
+        localStorage.setItem("run-sheet-settings-path", path);
+      },
     };
   });
 
 //Export Root Store and Type
 export type RootStoreType = Instance<typeof RootStoreModel>;
 export const setupRootStore = async () => {
-  const initSettings = await loadSettingsFromLocal();
+  const settingsPath = await loadSettingsPathfromLS();
+  const initSettings = await loadSettings(settingsPath);
   const defaultJobInformation = await setupJobInformationModel();
   const defaultCabinetCount = await setupCabinetCountModel();
   let defaultMaterials: MaterialModelType[] = [];
@@ -211,6 +243,8 @@ export const setupRootStore = async () => {
     finishOptions: initFinishOptions,
     settings: initSettings,
     availablePrinters: availablePrinters,
+    isAdrian: false,
+    settingsPath: settingsPath,
   });
   onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
     localStorage.setItem("run-sheet-settings", JSON.stringify(settingSnapshot));

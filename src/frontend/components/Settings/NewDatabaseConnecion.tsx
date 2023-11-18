@@ -68,10 +68,17 @@ const NewDatabaseConnection: React.FC<NewDatabaseConnectionProps> = observer(
       );
     };
 
-    const verifyConnectionToDb = async (): Promise<boolean> => {
+    const verifyConnectionToDb = async () => {
       try {
-        return await verifyDatabaseConnection(dbPath, provider, arch);
-      } catch {
+        await verifyDatabaseConnection(dbPath, provider, arch);
+        return true;
+      } catch (error) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: `Connection To Database Not Possible, ${error}`,
+          life: 3000,
+        });
         return false;
       }
     };
@@ -86,7 +93,7 @@ const NewDatabaseConnection: React.FC<NewDatabaseConnectionProps> = observer(
         toast.current?.show({
           severity: "error",
           summary: "Error",
-          detail: "Connection To Database Not Possible",
+          detail: `Connection To Database Not Possible,`,
           life: 3000,
         });
       }

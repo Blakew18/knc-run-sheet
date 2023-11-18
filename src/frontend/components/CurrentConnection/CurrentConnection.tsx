@@ -8,7 +8,6 @@ import { useRootStore } from "../../providers/RootStoreProvider";
 import { RootStoreType } from "../../models/root-store";
 import { SettingsInformationModelType } from "../../models/settings-information-model";
 import LoadingDialog from "../Loading/LoadingDialog";
-
 type DropDownSelectorObject = {
   id: number;
   name: string;
@@ -36,9 +35,16 @@ const CurrentConnection: React.FC = observer(() => {
   };
 
   const handleRefresh = async () => {
+    rootStore.rsAdrianRandomiser();
     setLoading(true);
     await rootStore.rsFetchCabinetVisionMaterials();
-    setLoading(false);
+    if (rootStore.isAdrian) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 5000);
+    } else {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,6 +53,7 @@ const CurrentConnection: React.FC = observer(() => {
       <Button label="Refresh" onClick={handleRefresh} />
       <div className="w-48">
         <Dropdown
+          className="run-sheet-dropdown"
           value={settings.currentDataProviderForDropDown}
           onChange={handleProviderChange}
           options={providerOptions}

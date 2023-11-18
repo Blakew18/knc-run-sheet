@@ -2,6 +2,7 @@
 import { app, BrowserWindow, ipcMain, protocol, net } from "electron";
 import portscanner from "portscanner";
 import path from "path";
+import fs from "fs";
 import isDev from "electron-is-dev";
 import os from "os";
 //Local Imports
@@ -44,6 +45,7 @@ app.whenReady().then(async () => {
   const mainWindow = new BrowserWindow({
     height: 900,
     autoHideMenuBar: true,
+    icon: "/knc.svg",
     webPreferences: {
       // preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
@@ -78,15 +80,53 @@ app.whenReady().then(async () => {
     const printers = await contents.getPrintersAsync();
     event.returnValue = printers;
   });
+  // ipcMain.on("print-run-sheet", (event, arg) => {
+  //   console.log(arg);
+  //   const contents = mainWindow.webContents;
+  //   contents.print({}, (success, error) => {
+  //     console.log("SUCORERR", success || error);
+  //     if (!success) console.log(error);
+  //     if (!success) event.returnValue = false;
+  //     event.returnValue = true;
+  //   });
+  // });
+
   ipcMain.on("print-run-sheet", (event, arg) => {
     console.log(arg);
     const contents = mainWindow.webContents;
-    contents.print(arg, (success, error) => {
-      if (!success) console.log(error);
-      if (!success) event.returnValue = false;
-      event.returnValue = true;
+
+    // Using the callback of contents.print to handle async operation
+    contents.print(arg, (success, errorType) => {
+      console.log("Print Result:", success, errorType);
+
+      // Sending a reply back to the renderer process with the result
+      if (success) {
+        event.reply("print-run-sheet-reply", { success: true });
+      } else {
+        console.log("Print Error:", errorType);
+        event.reply("print-run-sheet-reply", {
+          success: false,
+          error: errorType,
+        });
+      }
     });
   });
+
+  // ipcMain.on("print-run-sheet", async (event, arg) => {
+  //   console.log(arg);
+  //   const pdfPath = path.join(os.homedir(), "Desktop", "temp.pdf");
+  //   console.log(pdfPath);
+  //   const contents = mainWindow.webContents;
+  //   try {
+  //     const printedContent = await contents.printToPDF(arg);
+  //     console.log("PRINTED CONTENTS");
+  //     fs.writeFileSync(pdfPath, printedContent);
+  //     event.returnValue = true;
+  //   } catch (error) {
+  //     console.log(error);
+  //     event.returnValue = true;
+  //   }
+  // });
 
   //if (process.mainModule.filename.indexOf('app.asar') !== -1) {
   if (__filename.indexOf("app.asar") !== -1) {

@@ -9,7 +9,6 @@ import {
 //Local Imports
 import { useRootStore } from "../../../../providers/RootStoreProvider";
 import { CabinetCountModelType } from "../../../../models/cabinet-count-model";
-import "../supply-info-fields.css";
 
 const BaseCabinetCount: React.FC = observer(() => {
   const { cabinetInformation }: { cabinetInformation: CabinetCountModelType } =

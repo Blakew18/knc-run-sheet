@@ -6,7 +6,6 @@ import { InputTextarea } from "primereact/inputtextarea";
 //Local Imports
 import { useRootStore } from "../../providers/RootStoreProvider";
 import { JobInformationModelType } from "../../models/job-information-model";
-import "./job-notes.css";
 
 const JobNotes: React.FC = observer(() => {
   const { jobInformation }: { jobInformation: JobInformationModelType } =
@@ -25,6 +24,7 @@ const JobNotes: React.FC = observer(() => {
       </span>
       <div className="w-full h-full p-4">
         <InputTextarea
+          className="job-notes"
           value={jobInformation.jobSetOutNotes}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             updateJobSetOutNotes(e.target.value)

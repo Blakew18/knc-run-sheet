@@ -6,7 +6,6 @@ import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 //Local Imports
 import { useRootStore } from "../../../providers/RootStoreProvider";
 import { JobInformationModelType } from "../../../models/job-information-model";
-import "./supply-info-fields.css";
 
 const StackingDetail: React.FC = observer(() => {
   const { jobInformation }: { jobInformation: JobInformationModelType } =
@@ -20,7 +19,7 @@ const StackingDetail: React.FC = observer(() => {
     <div className="p-inputgroup h-4/6 text-xs w-1/3">
       <span className="p-inputgroup-addon w-32">Stacking Details</span>
       <Dropdown
-        className="text-xs"
+        className="text-xs run-sheet-dropdown"
         value={jobInformation.jobStackingDetails}
         options={jobInformation.jobStackingDetailsOptions}
         onChange={(e: DropdownChangeEvent) => updateStackingDetail(e.value)}

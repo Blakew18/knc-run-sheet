@@ -1,5 +1,5 @@
 //NPM Import
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Dock } from "primereact/dock";
 import { Tooltip } from "primereact/tooltip";
 
@@ -62,6 +62,19 @@ const MenuBar: React.FC<MenuBarProps> = ({ setCurrentMenu }) => {
       ),
       command: () => {
         setCurrentMenu("Label Printer Settings");
+      },
+    },
+    {
+      label: "Import/Export Settings",
+      icon: () => (
+        <img
+          alt="Import/Export Settings"
+          src="static://assets/config.svg"
+          width="100%"
+        />
+      ),
+      command: () => {
+        setCurrentMenu("Import/Export Settings");
       },
     },
   ];

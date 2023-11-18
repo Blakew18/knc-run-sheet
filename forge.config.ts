@@ -8,10 +8,18 @@ import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
+    icon: "./src/assets/knc.ico",
     asar: true,
+    extraResource: ["adodb.js", "knc.svg"],
   },
   rebuildConfig: {},
-  makers: [new MakerSquirrel({})],
+  makers: [
+    new MakerSquirrel({
+      authors: "Intique Projects Pty Ltd",
+      description: "KNC Runsheet App",
+      iconUrl: "static://assets/knc.svg",
+    }),
+  ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({

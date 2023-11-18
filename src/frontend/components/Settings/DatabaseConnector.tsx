@@ -53,7 +53,7 @@ const DatabaseConnector: React.FC = observer(() => {
   }, [edit]);
 
   return (
-    <div>
+    <div className="h-[100%] ">
       <div className="absolute top-2 right-2">
         <Button
           className="bg-blue-400 hover:bg-blue-500 text-white rounded shadow"
@@ -66,9 +66,12 @@ const DatabaseConnector: React.FC = observer(() => {
         />
       </div>
       <DataTable
+        scrollable
+        scrollHeight="100%"
         key={settings.providerArrayUniqueID}
         value={settings.dataProviders}
         tableStyle={{ minWidth: "50rem" }}
+        style={{ height: "100%" }}
       >
         <Column field="dataProviderName" header="Name"></Column>
         <Column field="dataProviderDBPath" header="Path"></Column>
