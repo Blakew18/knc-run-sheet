@@ -1,6 +1,5 @@
 //NPM Imports
 import axios from "axios";
-import fs from "fs";
 const { ipcRenderer } = window.require("electron");
 
 //Local Imports
@@ -23,6 +22,9 @@ import MaterialFinishesModel, {
 import PrinterModel, {
   PrinterModelForElectronType,
 } from "../models/printer-model";
+import CompanyInformationModel, {
+  CompanyInformationModelType,
+} from "../models/company-information-model";
 
 type MaterialOptionsType = {
   PanelStockID: number;
@@ -47,8 +49,8 @@ const expressPort = ipcRenderer.sendSync("get-express-port");
 const hostname = ipcRenderer.sendSync("get-hostname");
 const appVersion = ipcRenderer.sendSync("get-app-version");
 const expressAPI = `http://localhost:${expressPort}/api/`;
-const couldAPI = `https://www.intique.online//`;
-
+const cloudAPI = `https://www.intique.online//`;
+// const cloudAPI = `http://localhost:5005/`;
 const testConnString = `?dbPath=C:/ProgramData/Hexagon/CABINET VISION/S2M 2022/Database/PSNC-CV.accdb&provider=Microsoft.ACE.OLEDB.12.0&arch=true`;
 
 const localRequestInstance = axios.create({
@@ -56,26 +58,30 @@ const localRequestInstance = axios.create({
 });
 
 const cloudRequestInstance = axios.create({
-  baseURL: couldAPI,
+  baseURL: cloudAPI,
 });
 
-export const setupJobInformationModel =
-  async (): Promise<JobInformationModelType> => {
-    return JobInformationModel.create({
-      clientJobNumber: "",
-      kncJobNumber: 2689,
-      jobName: "",
-      jobNestDate: new Date(),
-      jobType: "KNC Queesnland",
-      jobSetOutBy: "",
-      jobNestedBy: "",
-      jobNestingComputer: "",
-      jobStackingDetails: "KNC Starndard Trolley with Cabinet Numbers",
-      jobAssemblyDetails: "KNC Queensland",
-      jobPaymentTerms: "14 Days",
-      jobSetOutNotes: "",
-    });
-  };
+export const setupJobInformationModel = async (
+  company: CompanyInformationModelType
+): Promise<JobInformationModelType> => {
+  const newJobNumber = await nextJobNumber(company);
+  console.log(newJobNumber);
+
+  return JobInformationModel.create({
+    clientJobNumber: "",
+    kncJobNumber: newJobNumber,
+    jobName: "",
+    jobNestDate: new Date(),
+    jobType: "KNC Queesnland",
+    jobSetOutBy: "",
+    jobNestedBy: "",
+    jobNestingComputer: "",
+    jobStackingDetails: "KNC Starndard Trolley with Cabinet Numbers",
+    jobAssemblyDetails: "KNC Queensland",
+    jobPaymentTerms: "14 Days",
+    jobSetOutNotes: "",
+  });
+};
 
 export const getAvailableBrandsFromCloud = async (): Promise<string[]> => {
   const brands: string[] = (
@@ -169,71 +175,48 @@ export const updateCabinetVisionMaterials = async (
   }
 };
 
-export const loadSettingsPathfromLS = async (): Promise<string> => {
-  try {
-    const localSettings = localStorage.getItem("run-sheet-settings");
-    if (localSettings === null || localSettings === undefined)
-      throw new Error("No Settings Found");
-    const localSettingObject = await JSON.parse(localSettings);
-    return localSettingObject.databasePath;
-  } catch (error) {
-    console.log(error);
-    return "";
-  }
-};
+export const loadSettingsPathfromLS =
+  async (): Promise<CompanyInformationModelType | null> => {
+    try {
+      const localSettings = localStorage.getItem("company-settings");
+      if (localSettings === null || localSettings === undefined)
+        throw new Error("No Settings Found");
+      const localSettingObject = await JSON.parse(localSettings);
+      return CompanyInformationModel.create(localSettingObject);
+    } catch (error) {
+      console.log(error);
+      return CompanyInformationModel.create({
+        companyName: "No Company Name",
+        companyKey: "No Company Key",
+      });
+    }
+  };
 
 export const loadSettings = async (
-  location: string
-): Promise<SettingsInformationModelType> => {
-  if (location === "") {
-    try {
-      const settings = await loadSettingsFromLocal();
-      return settings;
-    } catch (error) {
-      const defaultSettings = getDefaultSettings();
-      return defaultSettings;
-    }
-  } else {
-    try {
-      const settings = await loadSettingsFromShared(location);
-      return settings;
-    } catch (error) {
-      const defaultSettings = getDefaultSettings();
-      return defaultSettings;
-    }
-  }
-};
-
-const loadSettingsFromShared = async (
-  location: string
+  company: CompanyInformationModelType
 ): Promise<SettingsInformationModelType> => {
   try {
-    const fileContents = await localRequestInstance.get(
-      `/api/load-shared-settings?path=${location}`
+    if (company === null || company === undefined)
+      throw new Error("No Settings Found");
+    const settings = await cloudRequestInstance.get(
+      `company-keys?CompanyName=${company.companyName}&CompanyKey=${company.companyKey}`,
+      {
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      }
     );
-    const jsonData = JSON.parse(fileContents.data);
-    return jsonData;
+    console.log(settings.data);
+    if (settings === null || settings === undefined)
+      throw new Error("No Settings Found 2");
+    // const settingsObject = await JSON.parse(settings.data);
+    return SettingsInformationModel.create(settings.data);
   } catch (error) {
     console.log(error);
     const defaultSettings = getDefaultSettings();
     return defaultSettings;
   }
 };
-
-const loadSettingsFromLocal =
-  async (): Promise<SettingsInformationModelType> => {
-    try {
-      const localSettings = localStorage.getItem("run-sheet-settings");
-      if (localSettings === null || localSettings === undefined)
-        throw new Error("No Settings Found");
-      const localSettingObject = await JSON.parse(localSettings);
-      return SettingsInformationModel.create(localSettingObject);
-    } catch (error) {
-      console.log(error);
-      const defaultSettings = getDefaultSettings();
-      return defaultSettings;
-    }
-  };
 
 const getDefaultSettings = (): SettingsInformationModelType => {
   return SettingsInformationModel.create({
@@ -295,6 +278,74 @@ ipcRenderer.once("print-run-sheet-reply", (event, response) => {
 export const getAvailablePrinters = async (): Promise<printerType> => {
   const printers: printerType = await ipcRenderer.sendSync("get-printers");
   printers.push({ name: "default", displayName: "Default" });
-  console.log(printers);
   return printers;
+};
+
+export const generateNewCompanyKey = async (companyName: string) => {
+  try {
+    const key = await cloudRequestInstance.post(
+      `company-keys?CompanyName=${companyName}`
+    );
+    return {
+      companyKey: key.data.CompanyKey,
+      companyName: key.data.CompanyName,
+    };
+  } catch (error) {
+    return error.response.data.message;
+  }
+};
+
+export const testCompanyKey = async (
+  companyName: string,
+  companyKey: string
+) => {
+  try {
+    const key = await cloudRequestInstance.get(
+      `company-keys?CompanyName=${companyName}&CompanyKey=${companyKey}`
+    );
+    if (key) return true;
+    throw new Error("Invalid Key");
+  } catch (error) {
+    return false;
+  }
+};
+
+export const saveSettings = async (
+  companyName: string,
+  companyKey: string,
+  settings: string
+) => {
+  console.log("UPDATED SETTINGS");
+  console.log(settings);
+  try {
+    await cloudRequestInstance.put(
+      `company-keys?CompanyName=${companyName}&CompanyKey=${companyKey}`,
+      settings,
+      {
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      }
+    );
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const nextJobNumber = async (
+  company: CompanyInformationModelType
+): Promise<number> => {
+  try {
+    if (company === null || company === undefined)
+      throw new Error("No Company Data");
+    const newNumber: number = (
+      await cloudRequestInstance.get(
+        `company-keys/run-sheet-number?CompanyName=${company.companyName}&CompanyKey=${company.companyKey}`
+      )
+    ).data;
+    return newNumber || 1;
+  } catch (error) {
+    return 1;
+  }
 };

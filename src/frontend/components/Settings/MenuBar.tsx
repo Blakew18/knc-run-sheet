@@ -65,16 +65,16 @@ const MenuBar: React.FC<MenuBarProps> = ({ setCurrentMenu }) => {
       },
     },
     {
-      label: "Import/Export Settings",
+      label: "System Settings",
       icon: () => (
         <img
-          alt="Import/Export Settings"
+          alt="System Settings"
           src="static://assets/config.svg"
           width="100%"
         />
       ),
       command: () => {
-        setCurrentMenu("Import/Export Settings");
+        setCurrentMenu("System Settings");
       },
     },
   ];

@@ -18,7 +18,7 @@ const KNCJobNumber: React.FC = observer(() => {
         <span className="p-inputgroup-addon w-36">KNC Job Number:</span>
         <InputText
           id="kncJobNumber"
-          value={`KNC-${jobInformation.kncJobNumber.toString()}`}
+          value={`KNC-${jobInformation.jobNumberAs4DigitString}`}
           disabled
         />
       </div>

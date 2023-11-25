@@ -32,6 +32,10 @@ const Header: React.FC = observer(() => {
     if (validStore.isValid) {
       await rootStore.rsUpdateCabinetVisionmaterials();
       await rootStore.rsPrintRunSheet();
+      await rootStore.jobInformation.resetJobInfoStore(
+        rootStore.companySettings
+      );
+      rootStore.cabinetInformation.resetCabinetCount();
       await rootStore.rsFetchCabinetVisionMaterials();
     } else {
       setErrorMessages(validStore.errors);

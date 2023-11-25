@@ -2,7 +2,8 @@
 import { types, flow, Instance } from "mobx-state-tree";
 
 //Local Imports
-
+import { nextJobNumber } from "../providers/Services";
+import { CompanyInformationModelType } from "./company-information-model";
 //Constants for Selection Arrays
 const jobTypeOptions = [
   "KNC Queesnland",
@@ -81,6 +82,9 @@ const JobInformationModel = types
           value: option,
         }));
       },
+      get jobNumberAs4DigitString() {
+        return self.kncJobNumber.toString().padStart(4, "0");
+      },
       get jobImage() {
         switch (self.jobType) {
           case "KNC Queesnland":
@@ -137,6 +141,23 @@ const JobInformationModel = types
         self.jobSetOutNotes = jobSetOutNotes;
         return;
       },
+      resetJobInfoStore: flow(function* resetJobInfoStore(
+        company: CompanyInformationModelType
+      ) {
+        const NewJobNumber = yield nextJobNumber(company);
+        self.clientJobNumber = "";
+        self.kncJobNumber = NewJobNumber;
+        self.jobName = "";
+        self.jobNestDate = new Date();
+        self.jobType = "KNC Queesnland";
+        self.jobSetOutBy = "";
+        self.jobNestedBy = "";
+        self.jobNestingComputer = "";
+        self.jobStackingDetails = "KNC Starndard Trolley with Cabinet Numbers";
+        self.jobAssemblyDetails = "KNC Queensland";
+        self.jobPaymentTerms = "14 Days";
+        self.jobSetOutNotes = "";
+      }),
     };
   });
 

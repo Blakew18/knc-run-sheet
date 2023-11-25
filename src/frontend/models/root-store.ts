@@ -22,8 +22,12 @@ import {
   getAvailablePrinters,
   printRunSheet,
   loadSettingsPathfromLS,
+  saveSettings,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
+import CompanyInformationModel, {
+  CompanyInformationModelType,
+} from "./company-information-model";
 
 export const RootStoreModel = types
   .model("RootStore", {
@@ -46,12 +50,13 @@ export const RootStoreModel = types
       types.model({ name: types.string, displayName: types.string })
     ),
     isAdrian: types.boolean,
-    settingsPath: types.string,
+    companySettings: types.maybe(CompanyInformationModel),
   })
   .views((self) => {
     return {
       get materialArrayUniqueID() {
-        let total = 0;
+        const randomNumber = Math.floor(Math.random() * 100000000);
+        let total = randomNumber;
         let multiplier = 2;
         self.materials.forEach((material) => {
           const nameAsNumber =
@@ -60,7 +65,6 @@ export const RootStoreModel = types
           total += (material.cvMaterialID + nameAsNumber) * multiplier;
           multiplier += 1;
         });
-        console.log(total);
         return total;
       },
       get jobStatusOptions() {
@@ -141,7 +145,7 @@ export const RootStoreModel = types
             isValid = false;
           }
         });
-        return { isValid: true, errors: errors };
+        // return { isValid: true, errors: errors };
         return { isValid: isValid, errors: errors };
       },
     };
@@ -199,19 +203,15 @@ export const RootStoreModel = types
         self.jobStatus = status;
         return;
       },
-      setSettingPath(path: string) {
-        self.settingsPath = path;
-        localStorage.setItem("run-sheet-settings-path", path);
-      },
     };
   });
 
 //Export Root Store and Type
 export type RootStoreType = Instance<typeof RootStoreModel>;
 export const setupRootStore = async () => {
-  const settingsPath = await loadSettingsPathfromLS();
-  const initSettings = await loadSettings(settingsPath);
-  const defaultJobInformation = await setupJobInformationModel();
+  const companySettings = await loadSettingsPathfromLS();
+  const initSettings = await loadSettings(companySettings);
+  const defaultJobInformation = await setupJobInformationModel(companySettings);
   const defaultCabinetCount = await setupCabinetCountModel();
   let defaultMaterials: MaterialModelType[] = [];
   if (initSettings.currentDataProvider) {
@@ -244,11 +244,21 @@ export const setupRootStore = async () => {
     settings: initSettings,
     availablePrinters: availablePrinters,
     isAdrian: false,
-    settingsPath: settingsPath,
+    companySettings: companySettings,
   });
   onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
-    localStorage.setItem("run-sheet-settings", JSON.stringify(settingSnapshot));
+    saveSettings(
+      rs.companySettings.companyName,
+      rs.companySettings.companyKey,
+      JSON.stringify(settingSnapshot)
+    );
   });
+  onSnapshot(
+    rs.companySettings,
+    (companySnapshot: CompanyInformationModelType) => {
+      localStorage.setItem("company-settings", JSON.stringify(companySnapshot));
+    }
+  );
   console.log("Root Store Initilizing");
   return rs;
 };

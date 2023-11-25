@@ -7,11 +7,10 @@ import MenuBar from "./MenuBar";
 import FileNameSelector from "./FileNameSelector";
 import DatabaseConnector from "./DatabaseConnector";
 import PrinterSettings from "./PrinterSettings";
+import CompanySettings from "./CompanySettings";
 
 const Settings: React.FC = () => {
-  const [currentMenu, setCurrentMenu] = useState<string>(
-    "Database Connections"
-  );
+  const [currentMenu, setCurrentMenu] = useState<string>("System Settings");
 
   const menuSelector = () => {
     switch (currentMenu) {
@@ -23,8 +22,8 @@ const Settings: React.FC = () => {
         return <PrinterSettings />;
       case "Label Printer Settings":
         return <div>Label Printer Settings</div>;
-      case "Import/Export Settings":
-        return <div>Import/Export Settings</div>;
+      case "System Settings":
+        return <CompanySettings />;
       default:
         return <div>None</div>;
     }

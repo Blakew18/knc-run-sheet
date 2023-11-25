@@ -37,6 +37,9 @@ const CurrentConnection: React.FC = observer(() => {
   const handleRefresh = async () => {
     rootStore.rsAdrianRandomiser();
     setLoading(true);
+    await rootStore.jobInformation.resetJobInfoStore(rootStore.companySettings);
+    rootStore.cabinetInformation.resetCabinetCount();
+    await rootStore.rsFetchCabinetVisionMaterials();
     await rootStore.rsFetchCabinetVisionMaterials();
     if (rootStore.isAdrian) {
       setTimeout(() => {

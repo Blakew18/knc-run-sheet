@@ -40,6 +40,16 @@ const CabinetCountModel = types
       setCabinetCountInnerDrawer(value: number) {
         self.cabinetCountInnerDrawer = value;
       },
+      resetCabinetCount() {
+        self.cabinetCountBase = 0;
+        self.cabinetCountWall = 0;
+        self.cabinetCountTall = 0;
+        self.cabinetCountKicks = 0;
+        self.cabinetCountBulkhead = 0;
+        self.cabinetCountWallOven = 0;
+        self.cabinetCountDrawer = 0;
+        self.cabinetCountInnerDrawer = 0;
+      },
     };
   });
 
