@@ -163,11 +163,14 @@ export const getFinishOptions = async () => {
 };
 
 export const updateCabinetVisionMaterials = async (
+  dbPath: string,
+  provider: string,
+  arch: boolean,
   materials: MaterialModelType[]
 ): Promise<void> => {
   try {
     const updatePromises = materials.map((material) => {
-      localRequestInstance.put(`/all-panel-stock${testConnString}`, material);
+      localRequestInstance.put(`/all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`, material);
     });
     await Promise.all(updatePromises);
   } catch (error) {

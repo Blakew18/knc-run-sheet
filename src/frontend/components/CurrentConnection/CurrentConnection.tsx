@@ -1,8 +1,10 @@
 //NPM Import
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { Button } from "primereact/button";
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
 //Local Imports
 import { useRootStore } from "../../providers/RootStoreProvider";
 import { RootStoreType } from "../../models/root-store";
@@ -19,6 +21,29 @@ const CurrentConnection: React.FC = observer(() => {
     useRootStore();
 
   const [loading, setLoading] = useState(false);
+
+  const toast = useRef(null);
+
+  const accept = () => {
+    handleRefresh()
+    toast.current.show({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+}
+
+const reject = () => {
+    toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+}
+
+const confirm1 = () => {
+  confirmDialog({
+      message: 'Are you sure you want to refresh?',
+      header: 'Refresh Page?',
+      icon: 'pi pi-exclamation-triangle',
+      // defaultFocus: 'accept',
+      accept,
+      reject
+  });
+};
+
 
   const loadingDialog = () => {
     if (loading) {
@@ -53,7 +78,9 @@ const CurrentConnection: React.FC = observer(() => {
   return (
     <div className="flex flex-row-reverse h-full content-center py-2 pr-2">
       {loadingDialog()}
-      <Button label="Refresh" onClick={handleRefresh} />
+      <Toast ref={toast} />
+      <ConfirmDialog />
+      <Button label="Refresh" onClick={confirm1} />
       <div className="w-48">
         <Dropdown
           className="run-sheet-dropdown"

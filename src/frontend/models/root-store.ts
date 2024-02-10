@@ -186,7 +186,12 @@ export const RootStoreModel = types
       ),
       rsUpdateCabinetVisionmaterials: flow(
         function* rsUpdateCabinetVisionmaterials() {
-          yield updateCabinetVisionMaterials(self.materials);
+          const settings = self.settings.currentDataProvider;
+          yield updateCabinetVisionMaterials(
+            settings.dataProviderDBPath,
+            settings.dataProviderConnectionType,
+            settings.dataProviderArchitecture,
+            self.materials);
         }
       ),
       rsPrintRunSheet: flow(function* rsPrintRunSheet() {
