@@ -8,7 +8,7 @@ import {
   mssqlUpdatePaneStockQuery,
 } from "./mssql-text.js";
 
-if (process.mainModule.filename.indexOf("app.asar") !== -1) {
+if (__dirname.indexOf('app.asar') !== -1) {
   // In that case, we need to set the correct path to adodb.js
   ADODB.PATH = "./resources/adodb.js";
 }
