@@ -47,12 +47,14 @@ const MaterialList: React.FC = observer(() => {
     return <EdgeQtySelector material={material} />;
   };
 
+  const theSize = rootStore.browserInstance === "Print"? "small" : "normal"
+
   return (
     <div className="h-full p-4">
       <DataTable
         key={rootStore.materialArrayUniqueID}
         value={availableMaterials()}
-        size="normal"
+        size={theSize}
         scrollable
         scrollHeight="100%"
         style={{ height: "100%" }}
@@ -62,7 +64,7 @@ const MaterialList: React.FC = observer(() => {
           header="Image"
           body={imageSwatch}
         ></Column>
-        <Column field="materialQuantity" header="Quantity"></Column>
+        <Column field="materialQuantity" header="QTY"></Column>
         <Column field="cvMaterialName" header="CV Material Name"></Column>
         <Column
           field="materialBrand"

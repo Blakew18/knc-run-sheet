@@ -1,7 +1,7 @@
 {
   "name": "knc-run-sheet",
   "productName": "knc-run-sheet",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -25,6 +25,7 @@
     "@electron-forge/maker-zip": "^6.4.2",
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
     "@electron-forge/plugin-webpack": "^6.4.2",
+    "@electron-forge/publisher-github": "^7.2.0",
     "@tanstack/eslint-plugin-query": "^5.0.0",
     "@types/cors": "^2.8.15",
     "@types/portscanner": "^2.1.3",

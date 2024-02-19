@@ -32,13 +32,11 @@ const FinishSelector: React.FC<FinishSelectorProps> = observer(
           ? { name: finishName, id: 0 }
           : finishName;
       updateFinishName(finishNameObject);
-      // updateMaterialName(materialNameObject);
     };
 
     const updateFinishName = (finishNameSelector: DropDownSelectorObject) => {
-      const finishName: MaterialFinishesModelType =
+       const finishName: MaterialFinishesModelType =
         rootStore.materialFinishByID(finishNameSelector.id);
-      console.log(finishName);
       if (!finishName) {
         material.updateFinishName(
           MaterialFinishesModel.create({
@@ -51,7 +49,9 @@ const FinishSelector: React.FC<FinishSelectorProps> = observer(
         material.updateFinishName(finishName);
       }
     };
-
+    if (rootStore.browserInstance === 'Print') return (
+      <p>{material.materialFinish?.materialFinishName || ""}</p>
+    )
     return (
       <Dropdown
         value={material.materialFinish?.materialFinishName || ""}

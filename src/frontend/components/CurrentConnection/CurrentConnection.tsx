@@ -75,6 +75,9 @@ const confirm1 = () => {
     }
   };
 
+  if (rootStore.browserInstance === 'Print') return <></>
+
+
   return (
     <div className="flex flex-row-reverse h-full content-center py-2 pr-2">
       {loadingDialog()}

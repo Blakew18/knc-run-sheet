@@ -32,17 +32,20 @@ const Header: React.FC = observer(() => {
     if (validStore.isValid) {
       await rootStore.rsUpdateCabinetVisionmaterials();
       await rootStore.rsPrintRunSheet();
-      await rootStore.jobInformation.resetJobInfoStore(
-        rootStore.companySettings
-      );
-      rootStore.cabinetInformation.resetCabinetCount();
-      await rootStore.rsFetchCabinetVisionMaterials();
     } else {
       setErrorMessages(validStore.errors);
       setError(true);
     }
     setLoading(false);
   };
+
+  const submitButton = () => {
+    if (rootStore.browserInstance === "Print"){
+      return <></>
+    } else{
+      return <Button label="Submit" icon="pi pi-check" onClick={updateCVMaterials} />
+    }
+  }
 
   return (
     <div className="flex h-full justify-around items-center">
@@ -62,7 +65,7 @@ const Header: React.FC = observer(() => {
           ))}
         </p>
       </Dialog>
-      <Button label="Submit" icon="pi pi-check" onClick={updateCVMaterials} />
+      {submitButton()}
       <div className="text-3xl font-bold underline decoration-solid">
         CNC Run Sheet
       </div>

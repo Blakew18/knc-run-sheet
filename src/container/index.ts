@@ -12,15 +12,6 @@ import { startExpressServer } from "../server/server";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-// declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
-// const resolveToAbsolutePath = (path: string) => {
-//   return path.replace(/%([^%]+)%/g, function (_, key) {
-//     return process.env[key];
-//   });
-// };
-// const reactDevToolsPath = resolveToAbsolutePath(
-//   "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.28.5_0"
-// );
 
 //Ensure Single Instance Only
 const gotTheLock = app.requestSingleInstanceLock();
@@ -54,14 +45,17 @@ app.whenReady().then(async () => {
   });
   mainWindow.setAspectRatio(Math.sqrt(2));
   mainWindow.setMinimumSize(1232, 845);
-  // const runSheetWindow = new BrowserWindow({
-  //   height: 2480,
-  //   width: 3508,
-  //   show: isDev,
-  //   webPreferences: {
-  //     preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-  //   },
-  // });
+  const runSheetWindow = new BrowserWindow({
+    height: 2480,
+    width: 3508,
+    autoHideMenuBar: true,
+    icon: "/knc.svg",
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
 
   //Get Available Port for Express DB
   process.env.EXPRESSPORT = await getAvailablePort();
@@ -80,20 +74,10 @@ app.whenReady().then(async () => {
     const printers = await contents.getPrintersAsync();
     event.returnValue = printers;
   });
-  // ipcMain.on("print-run-sheet", (event, arg) => {
-  //   console.log(arg);
-  //   const contents = mainWindow.webContents;
-  //   contents.print({}, (success, error) => {
-  //     console.log("SUCORERR", success || error);
-  //     if (!success) console.log(error);
-  //     if (!success) event.returnValue = false;
-  //     event.returnValue = true;
-  //   });
-  // });
 
   ipcMain.on("print-run-sheet", (event, arg) => {
     console.log(arg);
-    const contents = mainWindow.webContents;
+    const contents = runSheetWindow.webContents;
 
     // Using the callback of contents.print to handle async operation
     contents.print(arg, (success, errorType) => {
@@ -112,22 +96,6 @@ app.whenReady().then(async () => {
     });
   });
 
-  // ipcMain.on("print-run-sheet", async (event, arg) => {
-  //   console.log(arg);
-  //   const pdfPath = path.join(os.homedir(), "Desktop", "temp.pdf");
-  //   console.log(pdfPath);
-  //   const contents = mainWindow.webContents;
-  //   try {
-  //     const printedContent = await contents.printToPDF(arg);
-  //     console.log("PRINTED CONTENTS");
-  //     fs.writeFileSync(pdfPath, printedContent);
-  //     event.returnValue = true;
-  //   } catch (error) {
-  //     console.log(error);
-  //     event.returnValue = true;
-  //   }
-  // });
-
   //if (process.mainModule.filename.indexOf('app.asar') !== -1) {
   if (__filename.indexOf("app.asar") !== -1) {
     process.env.PATHFORWSF = path.join(
@@ -142,15 +110,20 @@ app.whenReady().then(async () => {
 
   //Load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  //runSheetWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY + "#/runsheet");
+  runSheetWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY + "#/print-run-sheet");
   //Set Dev Tools
   if (isDev) {
     // await session.defaultSession.loadExtension(reactDevToolsPath);
     mainWindow.webContents.openDevTools({ mode: "detach" });
+    runSheetWindow.webContents.openDevTools({ mode: "detach" });
   }
 
   console.log("Electron Main Complete");
 });
+
+const server = 'https://knc-run-sheet.vercel.app'
+const url = `${server}/update/${process.platform}/${app.getVersion()}`
+console.log(url)
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

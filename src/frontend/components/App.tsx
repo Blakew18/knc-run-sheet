@@ -10,6 +10,7 @@ import "./app.css";
 const App: React.FC = () => {
   return (
     <Routes>
+      <Route path="/print-run-sheet" element={<RunSheet />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/" element={<RunSheet />} />
     </Routes>

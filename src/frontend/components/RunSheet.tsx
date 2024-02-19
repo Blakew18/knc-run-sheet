@@ -48,6 +48,28 @@ const RunSheet: React.FC = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [navigate]);
+
+  if (rootStore.browserInstance === 'Print'){
+    return (
+      <div className="h-screen">
+        <div className="h-[4%]">
+          <Header />
+        </div>
+        <div className="h-[20%] ">
+          <JobInfo />
+        </div>
+        <div className="h-[50%] ">
+          <MaterialList />
+        </div>
+        <div className="h-[8%] ">
+          <JobSupplyInfo />
+        </div>
+        <div className="h-[15%] ">
+          <JobNotes />
+        </div>
+    </div>
+    )
+  }
   return (
     <div className="h-screen">
       <div className="h-[8%]">

@@ -20,6 +20,19 @@ const config: ForgeConfig = {
       iconUrl: "static://assets/knc.svg",
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'github-user-name',
+          name: 'github-repo-name'
+        },
+        prerelease: false,
+        draft: true
+      }
+    }
+  ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({

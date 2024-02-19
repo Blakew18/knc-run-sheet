@@ -37,6 +37,8 @@ const MaterialModel = types
       },
       updateFinishName(finish: MaterialFinishesModelType) {
         self.materialFinish = _.cloneDeep(finish);
+      },
+      updateNewNameOnCompletion(){
         self.materialNewName = `${self.materialBrand}_${self.materialName?.materialNameName}_${self.materialFinish?.materialFinishName}`;
       },
       updateNotesSwitch(status: boolean) {
