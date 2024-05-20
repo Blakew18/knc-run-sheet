@@ -26,6 +26,7 @@ export const getOriginalPanelStock = async (dbPath, provider, arch) => {
       cvMaterialID: i.MatDBID,
       cvMaterialName: i.Name,
       materialQuantity: i.qty,
+      materialThickness: i.ImpThickInMM,
     }));
   } catch (error) {
     console.log(error);

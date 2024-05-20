@@ -1,10 +1,18 @@
 //NMP Imports
-import { app, BrowserWindow, ipcMain, protocol, net } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  protocol,
+  net,
+  autoUpdater,
+} from "electron";
 import portscanner from "portscanner";
 import path from "path";
 import fs from "fs";
 import isDev from "electron-is-dev";
 import os from "os";
+import log from "electron-log";
 //Local Imports
 import { startExpressServer } from "../server/server";
 
@@ -46,8 +54,8 @@ app.whenReady().then(async () => {
   mainWindow.setAspectRatio(Math.sqrt(2));
   mainWindow.setMinimumSize(1232, 845);
   const runSheetWindow = new BrowserWindow({
-    height: 2480,
-    width: 3508,
+    height: 1156,
+    width: 1128,
     autoHideMenuBar: true,
     icon: "/knc.svg",
     show: false,
@@ -80,20 +88,23 @@ app.whenReady().then(async () => {
     const contents = runSheetWindow.webContents;
 
     // Using the callback of contents.print to handle async operation
-    contents.print(arg, (success, errorType) => {
-      console.log("Print Result:", success, errorType);
+    contents.print(
+      { dpi: { horizontal: 600, vertical: 600 }, ...arg },
+      (success, errorType) => {
+        console.log("Print Result:", success, errorType);
 
-      // Sending a reply back to the renderer process with the result
-      if (success) {
-        event.reply("print-run-sheet-reply", { success: true });
-      } else {
-        console.log("Print Error:", errorType);
-        event.reply("print-run-sheet-reply", {
-          success: false,
-          error: errorType,
-        });
+        // Sending a reply back to the renderer process with the result
+        if (success) {
+          event.reply("print-run-sheet-reply", { success: true });
+        } else {
+          console.log("Print Error:", errorType);
+          event.reply("print-run-sheet-reply", {
+            success: false,
+            error: errorType,
+          });
+        }
       }
-    });
+    );
   });
 
   //if (process.mainModule.filename.indexOf('app.asar') !== -1) {
@@ -118,17 +129,55 @@ app.whenReady().then(async () => {
     runSheetWindow.webContents.openDevTools({ mode: "detach" });
   }
 
-  console.log("Electron Main Complete");
-});
+  app.on("before-quit", () => {
+    console.log("Before Quit");
+    if (mainWindow) mainWindow.destroy();
+    if (runSheetWindow) runSheetWindow.destroy();
+  });
 
-const server = 'https://knc-run-sheet.vercel.app'
-const url = `${server}/update/${process.platform}/${app.getVersion()}`
-console.log(url)
+  app.on("window-all-closed", () => {
+    console.log("Window All Closed");
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+  mainWindow.on("closed", () => {
+    console.log("Main Window Closed");
+    if (mainWindow) mainWindow.destroy();
+    if (runSheetWindow) runSheetWindow.destroy();
     app.quit();
+  });
+
+  //If not Dev Mode - Set Up Auto-Updates
+  if (!isDev) {
+    // Set timed interval to check for updates every 60000 milliseconds (1 minute)
+    setInterval(() => {
+      try {
+        const server = "https://knc-run-sheet-be90a93ca32b.herokuapp.com";
+        const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+        autoUpdater.setFeedURL({ url });
+        autoUpdater.checkForUpdates();
+      } catch (err) {
+        log.error("Error checking for updates:", err);
+      }
+    }, 60000);
+
+    autoUpdater.on("error", (error) => {
+      log.error("Error in auto-updater:", error);
+    });
+
+    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+      try {
+        let message = process.platform === "win32" ? releaseNotes : releaseName;
+        mainWindow.webContents.send("updateDownloaded", message);
+      } catch (err) {
+        log.error("Error handling update-downloaded event:", err);
+      }
+    });
   }
+
+  console.log("Electron Main Complete");
 });
 
 const getAvailablePort = async () => {

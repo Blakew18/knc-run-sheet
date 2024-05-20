@@ -108,6 +108,8 @@ export const setupCabinetCountModel =
       cabinetCountBulkhead: 0,
       cabinetCountDrawer: 0,
       cabinetCountInnerDrawer: 0,
+      cabinetHandEdgeParts: 0,
+      cabinetSharkNoseParts: 0,
     });
   };
 
@@ -121,6 +123,7 @@ export const setupMaterialModel = async (
       `all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`
     )
   ).data.map((material: MaterialModelType) => {
+    console.log(material);
     return MaterialModel.create({
       ...material,
       materialNotesSwitch: false,
@@ -170,7 +173,10 @@ export const updateCabinetVisionMaterials = async (
 ): Promise<void> => {
   try {
     const updatePromises = materials.map((material) => {
-      localRequestInstance.put(`/all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`, material);
+      localRequestInstance.put(
+        `/all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`,
+        material
+      );
     });
     await Promise.all(updatePromises);
   } catch (error) {

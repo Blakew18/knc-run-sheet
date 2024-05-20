@@ -6,6 +6,10 @@ import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
+import dotenv from "dotenv";
+
+const dotEnv = dotenv.config();
+
 const config: ForgeConfig = {
   packagerConfig: {
     icon: "./src/assets/knc.ico",
@@ -22,16 +26,16 @@ const config: ForgeConfig = {
   ],
   publishers: [
     {
-      name: '@electron-forge/publisher-github',
+      name: "@electron-forge/publisher-github",
       config: {
         repository: {
-          owner: 'github-user-name',
-          name: 'github-repo-name'
+          owner: "blakew18",
+          name: "knc-run-sheet",
         },
         prerelease: false,
-        draft: true
-      }
-    }
+        draft: true,
+      },
+    },
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),

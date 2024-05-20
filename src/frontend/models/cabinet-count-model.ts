@@ -13,6 +13,8 @@ const CabinetCountModel = types
     cabinetCountWallOven: types.integer,
     cabinetCountDrawer: types.integer,
     cabinetCountInnerDrawer: types.integer,
+    cabinetHandEdgeParts: types.integer,
+    cabinetSharkNoseParts: types.integer,
   })
   .actions((self) => {
     return {
@@ -40,6 +42,12 @@ const CabinetCountModel = types
       setCabinetCountInnerDrawer(value: number) {
         self.cabinetCountInnerDrawer = value;
       },
+      setCabientCountSharkNoseParts(value: number) {
+        self.cabinetSharkNoseParts = value;
+      },
+      setCabinetCountHandEdgeParts(value: number) {
+        self.cabinetHandEdgeParts = value;
+      },
       resetCabinetCount() {
         self.cabinetCountBase = 0;
         self.cabinetCountWall = 0;
@@ -49,6 +57,8 @@ const CabinetCountModel = types
         self.cabinetCountWallOven = 0;
         self.cabinetCountDrawer = 0;
         self.cabinetCountInnerDrawer = 0;
+        self.cabinetSharkNoseParts = 0;
+        self.cabinetHandEdgeParts = 0;
       },
     };
   });

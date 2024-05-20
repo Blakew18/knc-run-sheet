@@ -22,6 +22,7 @@ const MaterialModel = types
     materialNotesSwitch: types.boolean,
     materialEdgeQty: types.integer,
     materialNewName: types.maybe(types.string),
+    materialThickness: types.number,
   })
   .actions((self) => {
     return {
@@ -38,7 +39,7 @@ const MaterialModel = types
       updateFinishName(finish: MaterialFinishesModelType) {
         self.materialFinish = _.cloneDeep(finish);
       },
-      updateNewNameOnCompletion(){
+      updateNewNameOnCompletion() {
         self.materialNewName = `${self.materialBrand}_${self.materialName?.materialNameName}_${self.materialFinish?.materialFinishName}`;
       },
       updateNotesSwitch(status: boolean) {

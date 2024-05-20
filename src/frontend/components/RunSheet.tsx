@@ -1,20 +1,35 @@
 //NPM Imports
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from '@chakra-ui/react'
 
 //Local Imports
-import Header from "./Header/Header";
-import JobInfo from "./JobInfo/JobInfo";
-import JobSupplyInfo from "./JobSupplyInfo/JobSupplyInfo";
-import JobNotes from "./JobNotes/JobNotes";
-import MaterialList from "./MaterialList/MaterialList";
+import Header from "./Main Components/Header/Header";
+import JobInfo from "./Main Components/JobInfo/JobInfo";
+import JobSupplyInfo from "./Main Components/JobSupplyInfo/JobSupplyInfo";
+import JobNotes from "./Main Components/JobNotes/JobNotes";
+import MaterialList from "./Main Components/MaterialList/MaterialList";
 import CurrentConnection from "./CurrentConnection/CurrentConnection";
 import { useRootStore } from "../providers/RootStoreProvider";
 import { RootStoreType } from "../models/root-store";
+const { ipcRenderer } = window.require('electron');
+
 
 const RunSheet: React.FC = () => {
   const rootStore: RootStoreType = useRootStore();
   const navigate = useNavigate();
+  const toast = useToast()
+
+  ipcRenderer.on('updateDownloaded', (event, message) => {
+    console.log(message);
+    toast({
+      title: 'Update Available.',
+      description: "We have detected an update. Please restart the application to apply the update.",
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    })
+  });
 
   useEffect(() => {
     if (rootStore.settings.dataProviders.length < 1) {
@@ -49,29 +64,8 @@ const RunSheet: React.FC = () => {
     };
   }, [navigate]);
 
-  if (rootStore.browserInstance === 'Print'){
-    return (
-      <div className="h-screen">
-        <div className="h-[4%]">
-          <Header />
-        </div>
-        <div className="h-[20%] ">
-          <JobInfo />
-        </div>
-        <div className="h-[50%] ">
-          <MaterialList />
-        </div>
-        <div className="h-[8%] ">
-          <JobSupplyInfo />
-        </div>
-        <div className="h-[15%] ">
-          <JobNotes />
-        </div>
-    </div>
-    )
-  }
   return (
-    <div className="h-screen">
+    <div className="h-screen w-screen">
       <div className="h-[8%]">
         <Header />
       </div>
