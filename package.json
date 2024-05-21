@@ -1,7 +1,7 @@
 {
   "name": "knc-run-sheet",
   "productName": "knc-run-sheet",
-  "version": "1.3.28",
+  "version": "1.3.36",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {

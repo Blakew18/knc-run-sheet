@@ -1,8 +1,8 @@
 //NPM Imports
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from '@chakra-ui/react'
-
+import { Toast } from 'primereact/toast';
+import { Button } from "primereact/button";
 //Local Imports
 import Header from "./Main Components/Header/Header";
 import JobInfo from "./Main Components/JobInfo/JobInfo";
@@ -18,17 +18,39 @@ const { ipcRenderer } = window.require('electron');
 const RunSheet: React.FC = () => {
   const rootStore: RootStoreType = useRootStore();
   const navigate = useNavigate();
-  const toast = useToast()
+  const toast = useRef(null);
 
-  ipcRenderer.on('updateDownloaded', (event, message) => {
-    console.log(message);
-    toast({
-      title: 'Update Available.',
-      description: "We have detected an update. Please restart the application to apply the update.",
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    })
+const clearToast = () => {
+  toast.current.clear();
+}
+
+const restartApp = () => {
+  ipcRenderer.send('restartApp');
+}
+
+  const toastTemplate = (props:any) => {
+    return (
+      <div className="flex flex-col align-items-left w-full">
+      <span className="font-bold text-900">{props.message.summary}</span>
+      <div className="font-medium text-lg my-3 text-900">{props.message.detail}</div>
+      <h1>Would you like to restart now?</h1>
+      <div className=" flex flex-row w-full font-medium text-lg my-3 text-900 gap-1">
+      <Button className="p-button-sm flex" label="Restart Now" severity="success" onClick={restartApp}></Button>
+      <Button className="p-button-sm flex" label="Restart Later" severity="danger" onClick={clearToast}></Button>
+      </div>
+  </div>
+    )
+  }
+  
+  const show = (message:string) => {
+    toast.current.show({ severity: 'info', summary: 'Update Available', detail: message, sticky: true, content: (props:any) => (toastTemplate(props))});
+};
+
+
+
+
+  ipcRenderer.on('updateDownloaded', (event, message:string) => {
+    show(message)
   });
 
   useEffect(() => {
@@ -66,6 +88,7 @@ const RunSheet: React.FC = () => {
 
   return (
     <div className="h-screen w-screen">
+      <Toast ref={toast} position="bottom-left" />
       <div className="h-[8%]">
         <Header />
       </div>

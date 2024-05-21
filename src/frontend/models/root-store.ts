@@ -23,6 +23,7 @@ import {
   printRunSheet,
   loadSettingsPathfromLS,
   saveSettings,
+  getAppVersion,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 import CompanyInformationModel, {
@@ -32,6 +33,7 @@ import CompanyInformationModel, {
 export const RootStoreModel = types
   .model("RootStore", {
     appName: types.string,
+    appVersion: types.string,
     browserInstance: types.enumeration("browserInstance", ["Main", "Print"]),
     computerName: types.string,
     jobInformation: JobInformationModel,
@@ -155,8 +157,8 @@ export const RootStoreModel = types
     return {
       rsAdrianRandomiser() {
         self.isAdrian = false;
-        const randomNumber = Math.floor(Math.random() * 20);
-        if (randomNumber === 5) {
+        const randomNumber = Math.floor(Math.random() * 10);
+        if (randomNumber === 3 || randomNumber === 5 || randomNumber === 9) {
           if (
             self.settings.currentDataProvider.dataProviderName
               .toLowerCase()
@@ -171,26 +173,24 @@ export const RootStoreModel = types
         }
       },
       loadStoreUpdateFromLS() {
-        if(localStorage.getItem('current-root-store')){
+        if (localStorage.getItem("current-root-store")) {
           try {
-            const localRootStore = localStorage.getItem('current-root-store');
-            const loadedStore = JSON.parse(localRootStore); 
-            self.appName = loadedStore.appName
-            self.computerName = loadedStore.computerName
-            self.jobStatus = loadedStore.jobStatus
-            self.jobInformation = loadedStore.jobInformation
-            self.cabinetInformation = loadedStore.cabinetInformation
-            self.materials = loadedStore.materials
-            self.materialBrands = loadedStore.materialBrands
-            self.materialOptions = loadedStore.materialOptions
-            self.finishOptions = loadedStore.finishOptions
-            self.settings = loadedStore.settings
-            self.availablePrinters = loadedStore.availablePrinters
-            self.isAdrian = loadedStore.isAdrian
-            self.companySettings = loadedStore.companySettings
-          } catch (error) {
-            
-          }
+            const localRootStore = localStorage.getItem("current-root-store");
+            const loadedStore = JSON.parse(localRootStore);
+            self.appName = loadedStore.appName;
+            self.computerName = loadedStore.computerName;
+            self.jobStatus = loadedStore.jobStatus;
+            self.jobInformation = loadedStore.jobInformation;
+            self.cabinetInformation = loadedStore.cabinetInformation;
+            self.materials = loadedStore.materials;
+            self.materialBrands = loadedStore.materialBrands;
+            self.materialOptions = loadedStore.materialOptions;
+            self.finishOptions = loadedStore.finishOptions;
+            self.settings = loadedStore.settings;
+            self.availablePrinters = loadedStore.availablePrinters;
+            self.isAdrian = loadedStore.isAdrian;
+            self.companySettings = loadedStore.companySettings;
+          } catch (error) {}
         }
       },
       rsFetchCabinetVisionMaterials: flow(
@@ -213,13 +213,14 @@ export const RootStoreModel = types
           //For each material in self.materials run updateNewName Function
           self.materials.forEach((material) => {
             material.updateNewNameOnCompletion();
-          });         
+          });
           const settings = self.settings.currentDataProvider;
           yield updateCabinetVisionMaterials(
             settings.dataProviderDBPath,
             settings.dataProviderConnectionType,
             settings.dataProviderArchitecture,
-            self.materials);
+            self.materials
+          );
         }
       ),
       rsPrintRunSheet: flow(function* rsPrintRunSheet() {
@@ -264,14 +265,18 @@ export const setupRootStore = async () => {
   const initMaterialOptions = await getMaterialOptions();
   const initFinishOptions = await getFinishOptions();
   const availablePrinters = await getAvailablePrinters();
-  let browserInstance
-  if (window.location.href.substring(window.location.href.length - 9) != 'run-sheet') {
-    browserInstance = "Main"  
+  let browserInstance;
+  if (
+    window.location.href.substring(window.location.href.length - 9) !=
+    "run-sheet"
+  ) {
+    browserInstance = "Main";
   } else {
-    browserInstance = "Print"   
+    browserInstance = "Print";
   }
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",
+    appVersion: getAppVersion(),
     browserInstance: browserInstance,
     computerName: getComputerName(),
     jobStatus: "Order",
@@ -300,12 +305,18 @@ export const setupRootStore = async () => {
     }
   );
   onSnapshot(rs, (rootStoreSnapShot) => {
-    localStorage.setItem("current-root-store", JSON.stringify(rootStoreSnapShot))
-  })
-  if (window.location.href.substring(window.location.href.length - 9) === 'run-sheet') {
-    addEventListener('storage', (event) => {
-      if (event.key === 'current-root-store') rs.loadStoreUpdateFromLS();
+    localStorage.setItem(
+      "current-root-store",
+      JSON.stringify(rootStoreSnapShot)
+    );
   });
+  if (
+    window.location.href.substring(window.location.href.length - 9) ===
+    "run-sheet"
+  ) {
+    addEventListener("storage", (event) => {
+      if (event.key === "current-root-store") rs.loadStoreUpdateFromLS();
+    });
   }
   console.log("Root Store Initilizing");
   return rs;

@@ -61,6 +61,10 @@ const cloudRequestInstance = axios.create({
   baseURL: cloudAPI,
 });
 
+export const getAppVersion = (): string => {
+  return appVersion;
+};
+
 export const setupJobInformationModel = async (
   company: CompanyInformationModelType
 ): Promise<JobInformationModelType> => {

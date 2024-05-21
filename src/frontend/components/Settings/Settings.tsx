@@ -1,6 +1,7 @@
 //NPM Import
 import React, { useState, useEffect } from "react";
 import { Card } from "primereact/card";
+import { observer } from "mobx-react";
 import { useNavigate } from "react-router-dom";
 //Loacl Import
 import MenuBar from "./MenuBar";
@@ -8,9 +9,13 @@ import FileNameSelector from "./FileNameSelector";
 import DatabaseConnector from "./DatabaseConnector";
 import PrinterSettings from "./PrinterSettings";
 import CompanySettings from "./CompanySettings";
+import { useRootStore } from "../../providers/RootStoreProvider";
+import { RootStoreType } from "../../models/root-store";
 
-const Settings: React.FC = () => {
+const Settings: React.FC = observer(() => {
+
   const [currentMenu, setCurrentMenu] = useState<string>("System Settings");
+  const rootStore: RootStoreType = useRootStore();
 
   const menuSelector = () => {
     switch (currentMenu) {
@@ -53,14 +58,17 @@ const Settings: React.FC = () => {
       <div className="flex h-[8%] justify-around items-center">
         <h1 className=" text-4xl font-bold">SETTINGS</h1>
       </div>
-      <div className="h-[85%] flex justify-around items-center">
+      <div className="h-[80%] flex justify-around items-center">
         <Card title={currentMenu} className="h-[80%] w-[56%] relative">
           {menuSelector()}
         </Card>
       </div>
       <MenuBar setCurrentMenu={setCurrentMenu} />
+      <p className="absolute bottom-0 right-0 m-4">
+   Version: {rootStore.appVersion}
+  </p>
     </div>
   );
-};
+});
 
 export default Settings;

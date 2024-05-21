@@ -83,6 +83,12 @@ app.whenReady().then(async () => {
     event.returnValue = printers;
   });
 
+  ipcMain.on("restartApp", () => {
+    console.log("Restarting App");
+    app.relaunch();
+    app.quit();
+  });
+
   ipcMain.on("print-run-sheet", (event, arg) => {
     console.log(arg);
     const contents = runSheetWindow.webContents;
@@ -149,7 +155,6 @@ app.whenReady().then(async () => {
     app.quit();
   });
 
-  //If not Dev Mode - Set Up Auto-Updates
   if (!isDev) {
     // Set timed interval to check for updates every 60000 milliseconds (1 minute)
     setInterval(() => {
