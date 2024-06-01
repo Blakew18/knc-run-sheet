@@ -1,5 +1,7 @@
 //NPM Imports
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { onSnapshot, applySnapshot  } from "mobx-state-tree";
+const { ipcRenderer } = window.require("electron");
 
 //Local Imports
 import { RootStoreType, setupRootStore } from "../models/root-store";
@@ -16,6 +18,27 @@ const RootStoreProvider: React.FC<{ children: React.ReactNode }> = ({
     async function start() {
       const store = await setupRootStore();
       setRootStore(store);
+
+      // Listen for store changes
+      console.log("Listening for store changes");
+      console.log(window.location.href.substring(window.location.href.length - 9))
+
+      let isUpdateFromMain = false;
+      if (window.location.href.substring(window.location.href.length - 11) === 'main_window'){
+        isUpdateFromMain = true;
+      }
+
+      onSnapshot(store, (snapshot) => {
+        if (isUpdateFromMain && ipcRenderer) {
+          console.log("Sending store update to main process");
+          ipcRenderer.send('update-store', snapshot);
+        }
+      });
+
+      // Listen for updates from the main process
+      ipcRenderer?.on('store-updated', (event, snapshot) => {
+        applySnapshot(store, snapshot);
+      });
     }
     start();
   }, []);

@@ -16,6 +16,7 @@ const Header: React.FC = observer(() => {
   const [error, setError] = useState<boolean>(false);
   const [errorMessages, setErrorMessages] = useState<string>("");
 
+
   const loadingDialog = () => {
     if (loading) {
       return <LoadingDialog />;
@@ -46,9 +47,16 @@ const Header: React.FC = observer(() => {
       return <Button label="Submit" icon="pi pi-check" onClick={updateCVMaterials} />
     }
   }
+  const printLabeltButton = () => {
+    if (rootStore.browserInstance === "Print"){
+      return <></>
+    } else{
+      return <Button label="Print Labels" icon="pi pi-check" onClick={() => rootStore.rsPrintLabels()} />
+    }
+  }
 
   return (
-    <div className="flex h-full justify-around items-center">
+    <div className="flex h-full items-center w-full border border-white ">
       {loadingDialog()}
       <Dialog
         header="Error In Form Validation"
@@ -65,15 +73,22 @@ const Header: React.FC = observer(() => {
           ))}
         </p>
       </Dialog>
+       <div className="flex flex-1 justify-center">
+    <div className="flex gap-1">
       {submitButton()}
-      <div className="text-3xl font-bold underline decoration-solid">
-        CNC Run Sheet
-      </div>
-      <SelectButton
-        value={rootStore.jobStatus}
-        onChange={(e: SelectButtonChangeEvent) => setJobStatus(e)}
-        options={rootStore.jobStatusOptions}
-      />
+      {printLabeltButton()}
+    </div>
+  </div>
+  <div className="text-3xl font-bold underline decoration-solid mx-20">
+    CNC Run Sheet
+  </div>
+  <div className="flex flex-1 justify-center">
+    <SelectButton
+      value={rootStore.jobStatus}
+      onChange={(e: SelectButtonChangeEvent) => setJobStatus(e)}
+      options={rootStore.jobStatusOptions}
+    />
+  </div>
     </div>
   );
 });

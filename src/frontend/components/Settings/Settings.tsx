@@ -9,6 +9,7 @@ import FileNameSelector from "./FileNameSelector";
 import DatabaseConnector from "./DatabaseConnector";
 import PrinterSettings from "./PrinterSettings";
 import CompanySettings from "./CompanySettings";
+import LabelPrinterSettings from "./LabelPrinterSettings";
 import { useRootStore } from "../../providers/RootStoreProvider";
 import { RootStoreType } from "../../models/root-store";
 
@@ -26,7 +27,7 @@ const Settings: React.FC = observer(() => {
       case "Nest Sheet Printer Settings":
         return <PrinterSettings />;
       case "Label Printer Settings":
-        return <div>Label Printer Settings</div>;
+        return <LabelPrinterSettings />;
       case "System Settings":
         return <CompanySettings />;
       default:
@@ -54,7 +55,7 @@ const Settings: React.FC = observer(() => {
   }, [navigate]);
 
   return (
-    <div className="h-screen ">
+    <div id="settings" className="h-screen ">
       <div className="flex h-[8%] justify-around items-center">
         <h1 className=" text-4xl font-bold">SETTINGS</h1>
       </div>

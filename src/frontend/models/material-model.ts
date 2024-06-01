@@ -27,16 +27,19 @@ const MaterialModel = types
   .actions((self) => {
     return {
       updateMaterialBrand(brand: string) {
+        console.log("updateMaterialBrand");
         self.materialBrand = brand;
         self.materialName = undefined;
         self.materialNewName = undefined;
       },
       updateMaterialName(material: MaterialNameModelType) {
+        console.log("updateMaterialName");
         self.materialName = _.cloneDeep(material);
         self.materialFinish = undefined;
         self.materialNewName = undefined;
       },
       updateFinishName(finish: MaterialFinishesModelType) {
+        console.log("updateFinishName");
         self.materialFinish = _.cloneDeep(finish);
       },
       updateNewNameOnCompletion() {

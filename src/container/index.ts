@@ -58,7 +58,19 @@ app.whenReady().then(async () => {
     width: 1128,
     autoHideMenuBar: true,
     icon: "/knc.svg",
-    show: false,
+    show: isDev,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  const edgeLabelWindow = new BrowserWindow({
+    height: 170,
+    width: 870,
+    autoHideMenuBar: true,
+    icon: "/knc.svg",
+    show: isDev,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -82,13 +94,11 @@ app.whenReady().then(async () => {
     const printers = await contents.getPrintersAsync();
     event.returnValue = printers;
   });
-
   ipcMain.on("restartApp", () => {
     console.log("Restarting App");
     app.relaunch();
     app.quit();
   });
-
   ipcMain.on("print-run-sheet", (event, arg) => {
     console.log(arg);
     const contents = runSheetWindow.webContents;
@@ -113,6 +123,41 @@ app.whenReady().then(async () => {
     );
   });
 
+  ipcMain.on("print-labels", (event, arg) => {
+    console.log(arg);
+    const contents = edgeLabelWindow.webContents;
+
+    // Using the callback of contents.print to handle async operation
+    contents.print(
+      { dpi: { horizontal: 600, vertical: 600 }, ...arg },
+      (success, errorType) => {
+        console.log("Print Result:", success, errorType);
+
+        // Sending a reply back to the renderer process with the result
+        if (success) {
+          event.reply("print-labels-reply", { success: true });
+        } else {
+          console.log("Print Error:", errorType);
+          event.reply("print-labels-reply", {
+            success: false,
+            error: errorType,
+          });
+        }
+      }
+    );
+  });
+
+  //Sync For Main Window
+  ipcMain.on("update-store", (event, storeSnapshot) => {
+    const secondaryWindows = [runSheetWindow, edgeLabelWindow];
+    secondaryWindows.forEach((win) => {
+      if (win && !win.isDestroyed()) {
+        console.log("Sending Store Update to Window");
+        win.webContents.send("store-updated", storeSnapshot);
+      }
+    });
+  });
+
   //if (process.mainModule.filename.indexOf('app.asar') !== -1) {
   if (__filename.indexOf("app.asar") !== -1) {
     process.env.PATHFORWSF = path.join(
@@ -128,11 +173,22 @@ app.whenReady().then(async () => {
   //Load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   runSheetWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY + "#/print-run-sheet");
+  edgeLabelWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY + "#/print-labels");
   //Set Dev Tools
   if (isDev) {
     // await session.defaultSession.loadExtension(reactDevToolsPath);
-    mainWindow.webContents.openDevTools({ mode: "detach" });
-    runSheetWindow.webContents.openDevTools({ mode: "detach" });
+    mainWindow.webContents.openDevTools({
+      mode: "detach",
+      title: "Main Window",
+    });
+    runSheetWindow.webContents.openDevTools({
+      mode: "detach",
+      title: "Print Run Sheet",
+    });
+    edgeLabelWindow.webContents.openDevTools({
+      mode: "detach",
+      title: "Edge Label",
+    });
   }
 
   app.on("before-quit", () => {
@@ -178,6 +234,7 @@ app.whenReady().then(async () => {
         mainWindow.webContents.send("updateDownloaded", message);
       } catch (err) {
         log.error("Error handling update-downloaded event:", err);
+        mainWindow.webContents.send("autoUpdateError", err);
       }
     });
   }

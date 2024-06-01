@@ -69,7 +69,6 @@ export const setupJobInformationModel = async (
   company: CompanyInformationModelType
 ): Promise<JobInformationModelType> => {
   const newJobNumber = await nextJobNumber(company);
-  console.log(newJobNumber);
 
   return JobInformationModel.create({
     clientJobNumber: "",
@@ -127,7 +126,6 @@ export const setupMaterialModel = async (
       `all-panel-stock?dbPath=${dbPath}&provider=${provider}&arch=${arch}`
     )
   ).data.map((material: MaterialModelType) => {
-    console.log(material);
     return MaterialModel.create({
       ...material,
       materialNotesSwitch: false,
@@ -219,10 +217,26 @@ export const loadSettings = async (
         },
       }
     );
-    console.log(settings.data);
     if (settings === null || settings === undefined)
       throw new Error("No Settings Found 2");
     // const settingsObject = await JSON.parse(settings.data);
+    if (!settings.data.labelPrinter) {
+      settings.data.labelPrinter = {
+        silent: false,
+        printBackground: false,
+        deviceName: { name: "default", displayName: "Default" },
+        color: true,
+        marginType: "default",
+        marginTop: 1,
+        marginBottom: 1,
+        marginLeft: 1,
+        marginRight: 1,
+        landscape: true,
+        pageSizeName: "Custom",
+        pageSizeHeight: 17,
+        pageSizeWidth: 84,
+      };
+    }
     return SettingsInformationModel.create(settings.data);
   } catch (error) {
     console.log(error);
@@ -254,6 +268,21 @@ const getDefaultSettings = (): SettingsInformationModelType => {
       pageSizeHeight: 3508,
       pageSizeWidth: 2480,
     }),
+    labelPrinter: PrinterModel.create({
+      silent: false,
+      printBackground: false,
+      deviceName: { name: "default", displayName: "Default" },
+      color: true,
+      marginType: "default",
+      marginTop: 1,
+      marginBottom: 1,
+      marginLeft: 1,
+      marginRight: 1,
+      landscape: true,
+      pageSizeName: "Custom",
+      pageSizeHeight: 17,
+      pageSizeWidth: 84,
+    }),
   });
 };
 
@@ -281,6 +310,21 @@ export const printRunSheet = async (
 };
 // Handling the reply from main process
 ipcRenderer.once("print-run-sheet-reply", (event, response) => {
+  if (response.success) {
+    console.log("Print successful");
+  } else {
+    console.error("Print failed:", response.error);
+  }
+});
+
+export const printEdgeLabels = async (
+  printerObject: PrinterModelForElectronType
+) => {
+  ipcRenderer.send("print-labels", printerObject);
+  return true;
+};
+// Handling the reply from main process
+ipcRenderer.once("print-labels-reply", (event, response) => {
   if (response.success) {
     console.log("Print successful");
   } else {
@@ -328,8 +372,6 @@ export const saveSettings = async (
   companyKey: string,
   settings: string
 ) => {
-  console.log("UPDATED SETTINGS");
-  console.log(settings);
   try {
     await cloudRequestInstance.put(
       `company-keys?CompanyName=${companyName}&CompanyKey=${companyKey}`,

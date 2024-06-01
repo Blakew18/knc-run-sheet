@@ -42,16 +42,12 @@ const restartApp = () => {
     )
   }
   
-  const show = (message:string) => {
+  const showSucc = (message:string) => {
     toast.current.show({ severity: 'info', summary: 'Update Available', detail: message, sticky: true, content: (props:any) => (toastTemplate(props))});
 };
-
-
-
-
-  ipcRenderer.on('updateDownloaded', (event, message:string) => {
-    show(message)
-  });
+const showErr = (message:string) => {
+  toast.current.show({ severity: 'danger', summary: 'Update Failed Notify Blake', detail: message, sticky: true, content: (props:any) => (toastTemplate(props))});
+};
 
   useEffect(() => {
     if (rootStore.settings.dataProviders.length < 1) {
@@ -86,8 +82,20 @@ const restartApp = () => {
     };
   }, [navigate]);
 
+  useEffect(() => {
+    ipcRenderer.on('updateDownloaded', (event, message:string) => {
+      showSucc(message)
+    });
+    ipcRenderer.on('autoUpdateError', (event, message:string) => {
+      showErr(message)
+    });
+    return  () => {
+      ipcRenderer.removeAllListeners('updateDownloadedtest');
+    }
+  }, []);
+
   return (
-    <div className="h-screen w-screen">
+    <div  className="h-screen w-screen">
       <Toast ref={toast} position="bottom-left" />
       <div className="h-[8%]">
         <Header />

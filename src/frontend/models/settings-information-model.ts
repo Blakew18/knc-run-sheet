@@ -4,6 +4,7 @@ import _ from "lodash";
 //Local Imports
 import DataProviderModel from "./data-provider-model";
 import PrinterModel from "./printer-model";
+import LabelPrinterSettings from "../components/Settings/LabelPrinterSettings";
 
 const SettingsInformationModel = types
   .model("SettingsInformationModel", {
@@ -13,6 +14,7 @@ const SettingsInformationModel = types
     dataProviders: types.array(DataProviderModel),
     currentDataProvider: types.maybe(DataProviderModel),
     nestSheetPrinter: PrinterModel,
+    labelPrinter: PrinterModel,
   })
   .views((self) => {
     return {

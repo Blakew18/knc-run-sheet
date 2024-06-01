@@ -8,10 +8,12 @@ import JobInfo from "./Printer Components/JobInfo/JobInfo";
 import JobSupplyInfo from "./Printer Components/JobSupplyInfo/JobSupplyInfo";
 import JobNotes from "./Printer Components/JobNotes/JobNotes";
 import MaterialList from "./Printer Components/MaterialList/MaterialList";
+import useStoreSync from "../Hooks/useStoreSync";
 
 import "./printedsheet.css"
 
 const PrintedSheet: React.FC = () => {
+useStoreSync();
 
     return (
       <div id='printedSheet' className="h-screen pr-12 pl-6">

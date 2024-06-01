@@ -21,6 +21,7 @@ import {
   loadSettings,
   getAvailablePrinters,
   printRunSheet,
+  printEdgeLabels,
   loadSettingsPathfromLS,
   saveSettings,
   getAppVersion,
@@ -98,6 +99,24 @@ export const RootStoreModel = types
         if (existingIds.length === 0) return 1;
         const maxId = Math.max(...existingIds);
         return maxId + 1;
+      },
+      get materialNamesForEdging() {
+        return self.materials
+          .filter(
+            (material) =>
+              material.materialBrand &&
+              material.materialName &&
+              material.materialFinish
+          )
+          .map((material) => {
+            return (
+              material.materialBrand +
+              " " +
+              material.materialName.materialNameName +
+              " " +
+              material.materialFinish.materialFinishName
+            );
+          });
       },
       materialNameOptions(brand: string) {
         return self.materialOptions
@@ -229,6 +248,11 @@ export const RootStoreModel = types
         const printed = yield printRunSheet(printerObject);
         return printed;
       }),
+      rsPrintLabels: flow(function* rsPrintLabels() {
+        const printerObject = self.settings.labelPrinter.printerForElectron();
+        const printed = yield printEdgeLabels(printerObject);
+        return printed;
+      }),
       rsGetAvailablePrinters: flow(function* rsGetAvailablePrinters() {
         const printers = yield getAvailablePrinters();
         self.availablePrinters = printers;
@@ -310,14 +334,6 @@ export const setupRootStore = async () => {
       JSON.stringify(rootStoreSnapShot)
     );
   });
-  if (
-    window.location.href.substring(window.location.href.length - 9) ===
-    "run-sheet"
-  ) {
-    addEventListener("storage", (event) => {
-      if (event.key === "current-root-store") rs.loadStoreUpdateFromLS();
-    });
-  }
   console.log("Root Store Initilizing");
   return rs;
 };

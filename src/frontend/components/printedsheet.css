@@ -1,8 +1,11 @@
-@page {
-    size: A4 portrait;
-  }
 
-  body {
-    width: 297mm;
-    height: 210mm;
+@page {
+  size: A4 portrait;
+}
+
+@media print {
+    body {
+      width: 297mm;
+      height: 210mm;
+    }  
   }
