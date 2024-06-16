@@ -12,7 +12,6 @@ import MaterialList from "./Main Components/MaterialList/MaterialList";
 import CurrentConnection from "./CurrentConnection/CurrentConnection";
 import { useRootStore } from "../providers/RootStoreProvider";
 import { RootStoreType } from "../models/root-store";
-const { ipcRenderer } = window.require('electron');
 
 
 const RunSheet: React.FC = () => {
@@ -83,15 +82,21 @@ const showErr = (message:string) => {
   }, [navigate]);
 
   useEffect(() => {
-    ipcRenderer.on('updateDownloaded', (event, message:string) => {
-      showSucc(message)
-    });
-    ipcRenderer.on('autoUpdateError', (event, message:string) => {
-      showErr(message)
-    });
-    return  () => {
-      ipcRenderer.removeAllListeners('updateDownloadedtest');
-    }
+    const handleUpdateDownloaded = (event: Electron.IpcRendererEvent, message: string) => {
+      showSucc(message);
+    };
+
+    const handleAutoUpdateError = (event: Electron.IpcRendererEvent, message: string) => {
+      showErr(message);
+    };
+
+    window.electronAPI.onUpdateDownloaded(handleUpdateDownloaded);
+    window.electronAPI.onAutoUpdateError(handleAutoUpdateError);
+
+    return () => {
+      window.electronAPI.removeUpdateDownloadedListener(handleUpdateDownloaded);
+      window.electronAPI.removeAutoUpdateErrorListener(handleAutoUpdateError);
+    };
   }, []);
 
   return (

@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-const { ipcRenderer } = window.require("electron");
 import { applySnapshot } from 'mobx-state-tree';
 import { useRootStore } from '../providers/RootStoreProvider';
 
@@ -13,12 +12,13 @@ const useStoreSync = () => {
       }
     };
 
-    ipcRenderer.on('store-updated', syncStore);
+    window.electronAPI.onStoreUpdated(syncStore);
 
     return () => {
-      ipcRenderer.removeListener('store-updated', syncStore);
+      window.electronAPI.removeStoreUpdatedListener(syncStore);
     };
   }, [rootStore]);
 };
 
 export default useStoreSync;
+

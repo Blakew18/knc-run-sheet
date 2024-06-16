@@ -25,8 +25,6 @@ const JobSupplyInfo: React.FC = observer(() => {
     useRootStore();
 
   const assemblyInfo = () => {
-    console.log(jobInformation.jobType)
-    console.log(jobInformation.jobAssemblyDetails)
     if (jobInformation.jobType === "Supply Cabinets" && jobInformation.jobAssemblyDetails === "KNC Queensland"  ){
     return (
       <>

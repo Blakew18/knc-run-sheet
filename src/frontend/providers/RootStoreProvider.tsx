@@ -1,7 +1,6 @@
 //NPM Imports
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onSnapshot, applySnapshot  } from "mobx-state-tree";
-const { ipcRenderer } = window.require("electron");
+import { onSnapshot, applySnapshot } from "mobx-state-tree";
 
 //Local Imports
 import { RootStoreType, setupRootStore } from "../models/root-store";
@@ -19,27 +18,35 @@ const RootStoreProvider: React.FC<{ children: React.ReactNode }> = ({
       const store = await setupRootStore();
       setRootStore(store);
 
-      // Listen for store changes
-      console.log("Listening for store changes");
-      console.log(window.location.href.substring(window.location.href.length - 9))
+      let windowType = '';
+      await window.electronAPI.getWindowType((type: string) => {
+        windowType = type;
+      });
+      console.log("WINDOW = ", windowType)
+      if (windowType === 'main_window') {
+        console.log("Setting up snapshot listener for main window");
 
-      let isUpdateFromMain = false;
-      if (window.location.href.substring(window.location.href.length - 11) === 'main_window'){
-        isUpdateFromMain = true;
-      }
-
-      onSnapshot(store, (snapshot) => {
-        if (isUpdateFromMain && ipcRenderer) {
+        onSnapshot(store, (snapshot) => {
           console.log("Sending store update to main process");
-          ipcRenderer.send('update-store', snapshot);
-        }
-      });
+          window.electronAPI.updateStore(snapshot);
+        });
+      } else {
+        console.log("Setting up store update listener for other windows");
 
-      // Listen for updates from the main process
-      ipcRenderer?.on('store-updated', (event, snapshot) => {
-        applySnapshot(store, snapshot);
-      });
+        const syncStore = (event: Electron.IpcRendererEvent, snapshot: any) => {
+          if (store) {
+            applySnapshot(store, snapshot);
+          }
+        };
+
+        window.electronAPI.onStoreUpdated(syncStore);
+
+        return () => {
+          window.electronAPI.removeStoreUpdatedListener(syncStore);
+        };
+      }
     }
+
     start();
   }, []);
 
@@ -58,4 +65,5 @@ export const useRootStore = (): RootStoreType => {
   }
   return context;
 };
+
 export default RootStoreProvider;

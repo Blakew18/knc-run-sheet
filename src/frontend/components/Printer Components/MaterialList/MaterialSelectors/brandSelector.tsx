@@ -33,20 +33,14 @@ const BrandSelector: React.FC<BrandSelectorProps> = observer(({ material }) => {
   const updateMaterialBrand = (brandName: DropDownSelectorObject) => {
     material.updateMaterialBrand(brandName.name);
   };
-  if (rootStore.browserInstance === 'Print') return (
-    <p>{material.materialBrand}</p>
-  )
+  // if (rootStore.browserInstance === 'Print') return (
+  //   <p>{material.materialBrand}</p>
+  // )
   return (
-    <Dropdown
-      value={material.materialBrand}
-      onChange={(e: DropdownChangeEvent) =>
-        ensureDropDownSelectorObject(e.value)
-      }
-      options={rootStore.materialBrands}
-      optionLabel="name"
-      editable
-      placeholder="Select Material Brand"
-    />
+    <>
+    <div>{material.materialBrand}</div>
+    </>
+    
   );
 });
 

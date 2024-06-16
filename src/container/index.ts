@@ -20,6 +20,7 @@ import { startExpressServer } from "../server/server";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 
 //Ensure Single Instance Only
 const gotTheLock = app.requestSingleInstanceLock();
@@ -40,19 +41,22 @@ app.whenReady().then(async () => {
   });
 
   //Create New Window
-  console.log(os.hostname());
   const mainWindow = new BrowserWindow({
     height: 900,
     autoHideMenuBar: true,
     icon: "/knc.svg",
     webPreferences: {
-      // preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
   });
   mainWindow.setAspectRatio(Math.sqrt(2));
   mainWindow.setMinimumSize(1232, 845);
+  mainWindow.webContents.once('dom-ready', () => {
+    mainWindow.webContents.send('set-window-type', 'main_window');
+  });
+
   const runSheetWindow = new BrowserWindow({
     height: 1156,
     width: 1128,
@@ -60,9 +64,13 @@ app.whenReady().then(async () => {
     icon: "/knc.svg",
     show: isDev,
     webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
+  });
+  runSheetWindow.webContents.once('dom-ready', () => {
+    runSheetWindow.webContents.send('set-window-type', 'run_sheet_window');
   });
 
   const edgeLabelWindow = new BrowserWindow({
@@ -72,11 +80,14 @@ app.whenReady().then(async () => {
     icon: "/knc.svg",
     show: isDev,
     webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
   });
-
+  edgeLabelWindow.webContents.once('dom-ready', () => {
+    edgeLabelWindow.webContents.send('set-window-type', 'edge_label_window');
+  });
   //Get Available Port for Express DB
   process.env.EXPRESSPORT = await getAvailablePort();
 
@@ -89,10 +100,12 @@ app.whenReady().then(async () => {
   ipcMain.on("get-app-version", (event) => {
     event.returnValue = app.getVersion();
   });
-  ipcMain.on("get-printers", async function (event) {
+  ipcMain.handle("get-printers", async function (event) {
+    console.log("GETTING PRINTERS")
     const contents = mainWindow.webContents;
     const printers = await contents.getPrintersAsync();
-    event.returnValue = printers;
+    console.log("GOT PRINTERS", printers)
+    return printers;
   });
   ipcMain.on("restartApp", () => {
     console.log("Restarting App");

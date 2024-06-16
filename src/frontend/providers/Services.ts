@@ -1,6 +1,5 @@
 //NPM Imports
 import axios from "axios";
-const { ipcRenderer } = window.require("electron");
 
 //Local Imports
 import JobInformationModel, {
@@ -45,9 +44,9 @@ type printerType = {
   displayName: string;
 }[];
 
-const expressPort = ipcRenderer.sendSync("get-express-port");
-const hostname = ipcRenderer.sendSync("get-hostname");
-const appVersion = ipcRenderer.sendSync("get-app-version");
+const expressPort = window.electronAPI.getExpressPort();
+const hostname = window.electronAPI.getHostname();
+const appVersion = window.electronAPI.getAppVersion();
 const expressAPI = `http://localhost:${expressPort}/api/`;
 const cloudAPI = `https://www.intique.online//`;
 // const cloudAPI = `http://localhost:5005/`;
@@ -302,14 +301,53 @@ export const verifyDatabaseConnection = async (
   }
 };
 
+// export const printRunSheet = async (
+//   printerObject: PrinterModelForElectronType
+// ) => {
+//   ipcRenderer.send("print-run-sheet", printerObject);
+//   return true;
+// };
+// // Handling the reply from main process
+// ipcRenderer.once("print-run-sheet-reply", (event, response) => {
+//   if (response.success) {
+//     console.log("Print successful");
+//   } else {
+//     console.error("Print failed:", response.error);
+//   }
+// });
+
+// export const printEdgeLabels = async (
+//   printerObject: PrinterModelForElectronType
+// ) => {
+//   ipcRenderer.send("print-labels", printerObject);
+//   return true;
+// };
+// // Handling the reply from main process
+// ipcRenderer.once("print-labels-reply", (event, response) => {
+//   if (response.success) {
+//     console.log("Print successful");
+//   } else {
+//     console.error("Print failed:", response.error);
+//   }
+// });
+
+// export const getAvailablePrinters = async (): Promise<printerType> => {
+//   const printers: printerType = await ipcRenderer.sendSync("get-printers");
+//   printers.push({ name: "default", displayName: "Default" });
+//   return printers;
+// };
+
+// printFunctions.ts
+
 export const printRunSheet = async (
   printerObject: PrinterModelForElectronType
 ) => {
-  ipcRenderer.send("print-run-sheet", printerObject);
+  window.electronAPI.printRunSheet(printerObject);
   return true;
 };
+
 // Handling the reply from main process
-ipcRenderer.once("print-run-sheet-reply", (event, response) => {
+window.electronAPI.onPrintRunSheetReply((event, response) => {
   if (response.success) {
     console.log("Print successful");
   } else {
@@ -320,11 +358,12 @@ ipcRenderer.once("print-run-sheet-reply", (event, response) => {
 export const printEdgeLabels = async (
   printerObject: PrinterModelForElectronType
 ) => {
-  ipcRenderer.send("print-labels", printerObject);
+  window.electronAPI.printLabels(printerObject);
   return true;
 };
+
 // Handling the reply from main process
-ipcRenderer.once("print-labels-reply", (event, response) => {
+window.electronAPI.onPrintLabelsReply((event, response) => {
   if (response.success) {
     console.log("Print successful");
   } else {
@@ -333,10 +372,12 @@ ipcRenderer.once("print-labels-reply", (event, response) => {
 });
 
 export const getAvailablePrinters = async (): Promise<printerType> => {
-  const printers: printerType = await ipcRenderer.sendSync("get-printers");
+  const printers: printerType = await window.electronAPI.getPrinters();
+  console.log(printers)
   printers.push({ name: "default", displayName: "Default" });
   return printers;
 };
+
 
 export const generateNewCompanyKey = async (companyName: string) => {
   try {
