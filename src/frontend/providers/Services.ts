@@ -1,5 +1,5 @@
 //NPM Imports
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
 //Local Imports
 import JobInformationModel, {
@@ -44,23 +44,43 @@ type printerType = {
   displayName: string;
 }[];
 
-const expressPort = window.electronAPI.getExpressPort();
-const hostname = window.electronAPI.getHostname();
-const appVersion = window.electronAPI.getAppVersion();
-const expressAPI = `http://localhost:${expressPort}/api/`;
+const expressAPI = async () => {
+  const portNumber = await window.electronAPI.getExpressPort();
+  return `http://localhost:${portNumber}/api/`;
+};
+//const expressAPI = `http://localhost:${expressPort}/api/`;
 const cloudAPI = `https://www.intique.online//`;
 // const cloudAPI = `http://localhost:5005/`;
 const testConnString = `?dbPath=C:/ProgramData/Hexagon/CABINET VISION/S2M 2022/Database/PSNC-CV.accdb&provider=Microsoft.ACE.OLEDB.12.0&arch=true`;
 
-const localRequestInstance = axios.create({
-  baseURL: expressAPI,
-});
+let localRequestInstance: AxiosInstance | null = null;
+
+export const initializeAxiosInstance = async (): Promise<AxiosInstance> => {
+  if (localRequestInstance) {
+    // If the instance already exists, return it
+    return localRequestInstance;
+  }
+  const expressAPI = async () => {
+    const portNumber = await window.electronAPI.getExpressPort();
+    return `http://localhost:${portNumber}/api/`;
+  };
+
+  const baseURL = await expressAPI();
+
+  localRequestInstance = axios.create({
+    baseURL,
+  });
+
+  return localRequestInstance;
+};
 
 const cloudRequestInstance = axios.create({
   baseURL: cloudAPI,
 });
 
-export const getAppVersion = (): string => {
+export const getAppVersion = async (): Promise<string> => {
+  const appVersion = await window.electronAPI.getAppVersion();
+  console.log(appVersion);
   return appVersion;
 };
 
@@ -134,7 +154,9 @@ export const setupMaterialModel = async (
   return materials;
 };
 
-export const getComputerName = (): string => {
+export const getComputerName = async (): Promise<string> => {
+  const hostname = await window.electronAPI.getHostName();
+  console.log(hostname);
   return hostname;
 };
 
@@ -342,42 +364,25 @@ export const verifyDatabaseConnection = async (
 export const printRunSheet = async (
   printerObject: PrinterModelForElectronType
 ) => {
-  window.electronAPI.printRunSheet(printerObject);
+  const printedRunSheet = window.electronAPI.printRunSheet(printerObject);
+  console.log(printedRunSheet);
   return true;
 };
-
-// Handling the reply from main process
-window.electronAPI.onPrintRunSheetReply((event, response) => {
-  if (response.success) {
-    console.log("Print successful");
-  } else {
-    console.error("Print failed:", response.error);
-  }
-});
 
 export const printEdgeLabels = async (
   printerObject: PrinterModelForElectronType
 ) => {
-  window.electronAPI.printLabels(printerObject);
+  const printedlabel = window.electronAPI.printLabels(printerObject);
+  console.log(printedlabel);
   return true;
 };
 
-// Handling the reply from main process
-window.electronAPI.onPrintLabelsReply((event, response) => {
-  if (response.success) {
-    console.log("Print successful");
-  } else {
-    console.error("Print failed:", response.error);
-  }
-});
-
 export const getAvailablePrinters = async (): Promise<printerType> => {
   const printers: printerType = await window.electronAPI.getPrinters();
-  console.log(printers)
+  console.log(printers);
   printers.push({ name: "default", displayName: "Default" });
   return printers;
 };
-
 
 export const generateNewCompanyKey = async (companyName: string) => {
   try {

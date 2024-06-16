@@ -20,7 +20,7 @@ import { startExpressServer } from "../server/server";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 //Ensure Single Instance Only
 const gotTheLock = app.requestSingleInstanceLock();
@@ -53,9 +53,9 @@ app.whenReady().then(async () => {
   });
   mainWindow.setAspectRatio(Math.sqrt(2));
   mainWindow.setMinimumSize(1232, 845);
-  mainWindow.webContents.once('dom-ready', () => {
-    mainWindow.webContents.send('set-window-type', 'main_window');
-  });
+  // mainWindow.webContents.once("dom-ready", () => {
+  //   mainWindow.webContents.send("set-window-type", "main_window");
+  // });
 
   const runSheetWindow = new BrowserWindow({
     height: 1156,
@@ -69,9 +69,9 @@ app.whenReady().then(async () => {
       contextIsolation: true,
     },
   });
-  runSheetWindow.webContents.once('dom-ready', () => {
-    runSheetWindow.webContents.send('set-window-type', 'run_sheet_window');
-  });
+  // runSheetWindow.webContents.once("dom-ready", () => {
+  //   runSheetWindow.webContents.send("set-window-type", "run_sheet_window");
+  // });
 
   const edgeLabelWindow = new BrowserWindow({
     height: 170,
@@ -85,26 +85,40 @@ app.whenReady().then(async () => {
       contextIsolation: true,
     },
   });
-  edgeLabelWindow.webContents.once('dom-ready', () => {
-    edgeLabelWindow.webContents.send('set-window-type', 'edge_label_window');
-  });
+  // edgeLabelWindow.webContents.once("dom-ready", () => {
+  //   edgeLabelWindow.webContents.send("set-window-type", "edge_label_window");
+  // });
   //Get Available Port for Express DB
   process.env.EXPRESSPORT = await getAvailablePort();
 
-  ipcMain.on("get-express-port", (event) => {
-    event.returnValue = process.env.EXPRESSPORT;
+  ipcMain.handle("get-window-type", (event) => {
+    const sender = event.sender;
+
+    // Determine which BrowserWindow sent the request
+    let windowType;
+    if (sender === mainWindow.webContents) {
+      windowType = "main_window";
+    } else if (sender === runSheetWindow.webContents) {
+      windowType = "run_sheet_window";
+    } else if (sender === edgeLabelWindow.webContents) {
+      windowType = "edge_label_window";
+    }
+
+    return windowType;
   });
-  ipcMain.on("get-hostname", (event) => {
-    event.returnValue = os.hostname();
+
+  ipcMain.handle("get-express-port", (event) => {
+    return process.env.EXPRESSPORT;
   });
-  ipcMain.on("get-app-version", (event) => {
-    event.returnValue = app.getVersion();
+  ipcMain.handle("get-hostname", (event) => {
+    return os.hostname();
+  });
+  ipcMain.handle("get-app-version", (event) => {
+    return app.getVersion();
   });
   ipcMain.handle("get-printers", async function (event) {
-    console.log("GETTING PRINTERS")
     const contents = mainWindow.webContents;
     const printers = await contents.getPrintersAsync();
-    console.log("GOT PRINTERS", printers)
     return printers;
   });
   ipcMain.on("restartApp", () => {
@@ -112,10 +126,9 @@ app.whenReady().then(async () => {
     app.relaunch();
     app.quit();
   });
-  ipcMain.on("print-run-sheet", (event, arg) => {
+  ipcMain.handle("print-run-sheet", (event, arg) => {
     console.log(arg);
     const contents = runSheetWindow.webContents;
-
     // Using the callback of contents.print to handle async operation
     contents.print(
       { dpi: { horizontal: 600, vertical: 600 }, ...arg },
@@ -124,19 +137,19 @@ app.whenReady().then(async () => {
 
         // Sending a reply back to the renderer process with the result
         if (success) {
-          event.reply("print-run-sheet-reply", { success: true });
+          return { success: true, message: success };
         } else {
           console.log("Print Error:", errorType);
-          event.reply("print-run-sheet-reply", {
+          return {
             success: false,
             error: errorType,
-          });
+          };
         }
       }
     );
   });
 
-  ipcMain.on("print-labels", (event, arg) => {
+  ipcMain.handle("print-labels", (event, arg) => {
     console.log(arg);
     const contents = edgeLabelWindow.webContents;
 
@@ -148,13 +161,13 @@ app.whenReady().then(async () => {
 
         // Sending a reply back to the renderer process with the result
         if (success) {
-          event.reply("print-labels-reply", { success: true });
+          return { success: true, message: success };
         } else {
           console.log("Print Error:", errorType);
-          event.reply("print-labels-reply", {
+          return {
             success: false,
             error: errorType,
-          });
+          };
         }
       }
     );

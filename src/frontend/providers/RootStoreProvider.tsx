@@ -18,12 +18,10 @@ const RootStoreProvider: React.FC<{ children: React.ReactNode }> = ({
       const store = await setupRootStore();
       setRootStore(store);
 
-      let windowType = '';
-      await window.electronAPI.getWindowType((type: string) => {
-        windowType = type;
-      });
-      console.log("WINDOW = ", windowType)
-      if (windowType === 'main_window') {
+      let windowType = await window.electronAPI.getWindowType();
+
+      console.log("WINDOW = ", windowType);
+      if (windowType === "main_window") {
         console.log("Setting up snapshot listener for main window");
 
         onSnapshot(store, (snapshot) => {

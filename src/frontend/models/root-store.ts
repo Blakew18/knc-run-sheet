@@ -25,6 +25,7 @@ import {
   loadSettingsPathfromLS,
   saveSettings,
   getAppVersion,
+  initializeAxiosInstance,
 } from "../providers/Services";
 import MaterialFinishesModel from "./material-finishes-model";
 import CompanyInformationModel, {
@@ -35,7 +36,8 @@ export const RootStoreModel = types
   .model("RootStore", {
     appName: types.string,
     appVersion: types.string,
-    browserInstance: types.enumeration("browserInstance", ["Main", "Print"]),
+    browserInstance: types.enumeration("BrowserInstance", ["Main", "Print"]),
+    printerName: types.string,
     computerName: types.string,
     jobInformation: JobInformationModel,
     jobStatus: types.enumeration("JobStatus", ["Quote", "Order"]),
@@ -267,73 +269,85 @@ export const RootStoreModel = types
 //Export Root Store and Type
 export type RootStoreType = Instance<typeof RootStoreModel>;
 export const setupRootStore = async () => {
+  await initializeAxiosInstance();
+  const browserInstance = await window.electronAPI.getWindowType();
   const companySettings = await loadSettingsPathfromLS();
   const initSettings = await loadSettings(companySettings);
   const defaultJobInformation = await setupJobInformationModel(companySettings);
   const defaultCabinetCount = await setupCabinetCountModel();
   let defaultMaterials: MaterialModelType[] = [];
-  if (initSettings.currentDataProvider) {
-    const settings = initSettings.currentDataProvider;
-    try {
-      defaultMaterials = await setupMaterialModel(
-        settings.dataProviderDBPath,
-        settings.dataProviderConnectionType,
-        settings.dataProviderArchitecture
-      );
-    } catch (error) {
-      console.log(error);
-      defaultMaterials = [];
+
+  let initBrands;
+  let initMaterialOptions;
+  let initFinishOptions;
+  let availablePrinters;
+
+  if (browserInstance === "main_window") {
+    initBrands = await getAvailableBrandsFromCloud();
+    initMaterialOptions = await getMaterialOptions();
+    initFinishOptions = await getFinishOptions();
+    availablePrinters = await getAvailablePrinters();
+
+    if (initSettings.currentDataProvider) {
+      const settings = initSettings.currentDataProvider;
+      try {
+        defaultMaterials = await setupMaterialModel(
+          settings.dataProviderDBPath,
+          settings.dataProviderConnectionType,
+          settings.dataProviderArchitecture
+        );
+      } catch (error) {
+        console.log(error);
+        defaultMaterials = [];
+      }
     }
   }
-  const initBrands = await getAvailableBrandsFromCloud();
-  const initMaterialOptions = await getMaterialOptions();
-  const initFinishOptions = await getFinishOptions();
-  const availablePrinters = await getAvailablePrinters();
-  let browserInstance;
-  if (
-    window.location.href.substring(window.location.href.length - 9) !=
-    "run-sheet"
-  ) {
-    browserInstance = "Main";
-  } else {
-    browserInstance = "Print";
-  }
+
+  const appVersion = await getAppVersion();
+  const computerName = await getComputerName();
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",
-    appVersion: getAppVersion(),
-    browserInstance: browserInstance,
-    computerName: getComputerName(),
+    appVersion: appVersion,
+    browserInstance: browserInstance === "main_window" ? "Main" : "Print",
+    computerName: computerName,
     jobStatus: "Order",
     jobInformation: defaultJobInformation,
     cabinetInformation: defaultCabinetCount,
     materials: defaultMaterials,
-    materialBrands: initBrands,
-    materialOptions: initMaterialOptions,
-    finishOptions: initFinishOptions,
+    materialBrands: initBrands || [],
+    materialOptions: initMaterialOptions || [],
+    finishOptions: initFinishOptions || [],
     settings: initSettings,
-    availablePrinters: availablePrinters,
+    availablePrinters: availablePrinters || [],
     isAdrian: false,
     companySettings: companySettings,
   });
-  onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
-    saveSettings(
-      rs.companySettings.companyName,
-      rs.companySettings.companyKey,
-      JSON.stringify(settingSnapshot)
+
+  if (browserInstance === "main_window") {
+    onSnapshot(rs.settings, (settingSnapshot: SettingsInformationModelType) => {
+      console.log("Settings Snapshot");
+      saveSettings(
+        rs.companySettings.companyName,
+        rs.companySettings.companyKey,
+        JSON.stringify(settingSnapshot)
+      );
+    });
+    onSnapshot(
+      rs.companySettings,
+      (companySnapshot: CompanyInformationModelType) => {
+        localStorage.setItem(
+          "company-settings",
+          JSON.stringify(companySnapshot)
+        );
+      }
     );
-  });
-  onSnapshot(
-    rs.companySettings,
-    (companySnapshot: CompanyInformationModelType) => {
-      localStorage.setItem("company-settings", JSON.stringify(companySnapshot));
-    }
-  );
-  onSnapshot(rs, (rootStoreSnapShot) => {
-    localStorage.setItem(
-      "current-root-store",
-      JSON.stringify(rootStoreSnapShot)
-    );
-  });
+  }
+  // onSnapshot(rs, (rootStoreSnapShot) => {
+  //   localStorage.setItem(
+  //     "current-root-store",
+  //     JSON.stringify(rootStoreSnapShot)
+  //   );
+  // });
   console.log("Root Store Initilizing");
   return rs;
 };

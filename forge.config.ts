@@ -20,7 +20,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       authors: "Intique Projects Pty Ltd",
-      description: "KNC Runsheet App",
+      description: "KNC Runsheet App - Beta Version",
       iconUrl: "static://assets/knc.svg",
     }),
   ],
@@ -32,7 +32,7 @@ const config: ForgeConfig = {
           owner: "blakew18",
           name: "knc-run-sheet",
         },
-        prerelease: false,
+        prerelease: true,
         draft: true,
       },
     },

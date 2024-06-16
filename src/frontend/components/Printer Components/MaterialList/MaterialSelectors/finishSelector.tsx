@@ -35,7 +35,7 @@ const FinishSelector: React.FC<FinishSelectorProps> = observer(
     };
 
     const updateFinishName = (finishNameSelector: DropDownSelectorObject) => {
-       const finishName: MaterialFinishesModelType =
+      const finishName: MaterialFinishesModelType =
         rootStore.materialFinishByID(finishNameSelector.id);
       if (!finishName) {
         material.updateFinishName(
@@ -49,23 +49,7 @@ const FinishSelector: React.FC<FinishSelectorProps> = observer(
         material.updateFinishName(finishName);
       }
     };
-    if (rootStore.browserInstance === 'Print') return (
-      <p>{material.materialFinish?.materialFinishName || ""}</p>
-    )
-    return (
-      <Dropdown
-        value={material.materialFinish?.materialFinishName || ""}
-        onChange={(e: DropdownChangeEvent) =>
-          ensureDropDownSelectorObject(e.value)
-        }
-        options={rootStore.materialFinishOptions(
-          material.materialName?.materialNameID
-        )}
-        optionLabel="name"
-        editable
-        placeholder="Select Material Brand"
-      />
-    );
+    return <p>{material.materialFinish?.materialFinishName || ""}</p>;
   }
 );
 
