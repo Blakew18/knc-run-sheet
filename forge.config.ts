@@ -32,7 +32,7 @@ const config: ForgeConfig = {
           owner: "blakew18",
           name: "knc-run-sheet",
         },
-        prerelease: false,
+        prerelease: true,
         draft: true,
       },
     },

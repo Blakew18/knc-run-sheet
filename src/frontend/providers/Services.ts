@@ -49,7 +49,7 @@ const expressPort = ipcRenderer.sendSync("get-express-port");
 const hostname = ipcRenderer.sendSync("get-hostname");
 const appVersion = ipcRenderer.sendSync("get-app-version");
 const expressAPI = `http://localhost:${expressPort}/api/`;
-const cloudAPI = `https://www.intique.online//`;
+const cloudAPI = `https://intique-projects-api-3b38e9a5f5c8.herokuapp.com/`;
 // const cloudAPI = `http://localhost:5005/`;
 const testConnString = `?dbPath=C:/ProgramData/Hexagon/CABINET VISION/S2M 2022/Database/PSNC-CV.accdb&provider=Microsoft.ACE.OLEDB.12.0&arch=true`;
 

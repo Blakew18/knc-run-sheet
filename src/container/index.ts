@@ -96,8 +96,7 @@ app.whenReady().then(async () => {
   });
   ipcMain.on("restartApp", () => {
     console.log("Restarting App");
-    app.relaunch();
-    app.quit();
+    autoUpdater.quitAndInstall();
   });
   ipcMain.on("print-run-sheet", (event, arg) => {
     console.log(arg);
@@ -208,6 +207,7 @@ app.whenReady().then(async () => {
     console.log("Main Window Closed");
     if (mainWindow) mainWindow.destroy();
     if (runSheetWindow) runSheetWindow.destroy();
+    if (runSheetWindow) edgeLabelWindow.destroy();
     app.quit();
   });
 
