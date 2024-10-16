@@ -9,7 +9,6 @@ import { JobInformationModelType } from "../../../models/job-information-model";
 import { RootStoreType } from "../../../models/root-store";
 
 const JobNotes: React.FC = observer(() => {
-
   const rootStore: RootStoreType = useRootStore();
   const { jobInformation }: { jobInformation: JobInformationModelType } =
     useRootStore();
@@ -19,22 +18,21 @@ const JobNotes: React.FC = observer(() => {
     jobInformation.setJobSetOutNotes(jobSetOutNotes);
   };
 
-
   return (
     <div className="w-full h-full p-4">
       <span className="flex px-4">
         <h3 className="font-bold">Set out Notes:</h3>&nbsp;
         <p>(Example: Use off cut, board due date, lots of small parts, etc.)</p>
       </span>
-      <div className="w-full h-full m-2 p-2 outline text-xl text-pretty" >
-      <p className="text-xl">{jobInformation.jobSetOutNotes.split("\n").map((line, index) => (
-        <div key={index}>{line}</div>
-      ))}</p>
+      <div className="w-full h-full m-2 p-2 outline text-xl text-pretty">
+        <p className="text-xl">
+          {jobInformation.jobSetOutNotes.split("\n").map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </p>
       </div>
     </div>
   );
 });
 
 export default JobNotes;
-
-

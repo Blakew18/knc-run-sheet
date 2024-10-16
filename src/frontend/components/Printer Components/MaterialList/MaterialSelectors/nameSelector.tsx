@@ -47,22 +47,9 @@ const NameSelector: React.FC<NameSelectorProps> = observer(({ material }) => {
       material.updateMaterialName(materialName);
     }
   };
-  if (rootStore.browserInstance === 'Print') return (
-    <p>{material.materialName?.materialNameName || ""}</p>
-  )
-  return (
-    <Dropdown
-      value={material.materialName?.materialNameName || ""}
-      onChange={(e: DropdownChangeEvent) =>
-        ensureDropDownSelectorObject(e.value)
-      }
-      options={rootStore.materialNameOptions(material.materialBrand)}
-      optionLabel="name"
-      editable
-      filter
-      placeholder="Select Material Brand"
-    />
-  );
+  if (rootStore.browserInstance === "Print")
+    return <p>{material.materialName?.materialNameName || ""}</p>;
+  return <p>{material.materialName?.materialNameName || ""}</p>;
 });
 
 export default NameSelector;

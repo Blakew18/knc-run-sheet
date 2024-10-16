@@ -50,9 +50,10 @@ const PrinterSettings: React.FC = observer(() => {
             <span className="p-inputgroup-addon w-28">Device</span>
             <Dropdown
               value={nestPrinter.deviceName}
-              onChange={(e: DropdownChangeEvent) =>
-                nestPrinter.setDeviceName(_.cloneDeep(e.value))
-              }
+              onChange={(e: DropdownChangeEvent) => {
+                console.log("Printer Name", _.cloneDeep(e.value));
+                nestPrinter.setDeviceName(_.cloneDeep(e.value));
+              }}
               options={rootStore.availablePrinters}
               optionLabel="displayName"
             />

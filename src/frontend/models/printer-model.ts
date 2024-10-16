@@ -84,6 +84,7 @@ const PrinterModel = types
         self.printBackground = printBackground;
       },
       setDeviceName(deviceName: Instance<typeof self.deviceName>) {
+        console.log("divice Name Set in model", deviceName);
         self.deviceName = deviceName;
       },
       setColour(colour: boolean) {

@@ -245,6 +245,7 @@ export const RootStoreModel = types
       rsPrintRunSheet: flow(function* rsPrintRunSheet() {
         const printerObject =
           self.settings.nestSheetPrinter.printerForElectron();
+        console.log("Print Object", printerObject);
         const printed = yield printRunSheet(printerObject);
         return printed;
       }),

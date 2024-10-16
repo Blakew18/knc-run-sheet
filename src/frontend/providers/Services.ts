@@ -305,6 +305,7 @@ export const verifyDatabaseConnection = async (
 export const printRunSheet = async (
   printerObject: PrinterModelForElectronType
 ) => {
+  console.log("PRINTER", printerObject);
   ipcRenderer.send("print-run-sheet", printerObject);
   return true;
 };
