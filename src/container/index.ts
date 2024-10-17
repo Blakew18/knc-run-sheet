@@ -211,33 +211,33 @@ app.whenReady().then(async () => {
     app.quit();
   });
 
-  if (!isDev) {
-    // Set timed interval to check for updates every 60000 milliseconds (1 minute)
-    setInterval(() => {
-      try {
-        const server = "https://knc-run-sheet-be90a93ca32b.herokuapp.com";
-        const url = `${server}/update/${process.platform}/${app.getVersion()}`;
-        autoUpdater.setFeedURL({ url });
-        autoUpdater.checkForUpdates();
-      } catch (err) {
-        log.error("Error checking for updates:", err);
-      }
-    }, 60000);
+  // if (!isDev) {
+  //   // Set timed interval to check for updates every 60000 milliseconds (1 minute)
+  //   setInterval(() => {
+  //     try {
+  //       const server = "https://knc-run-sheet-be90a93ca32b.herokuapp.com";
+  //       const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+  //       autoUpdater.setFeedURL({ url });
+  //       autoUpdater.checkForUpdates();
+  //     } catch (err) {
+  //       log.error("Error checking for updates:", err);
+  //     }
+  //   }, 60000);
 
-    autoUpdater.on("error", (error) => {
-      log.error("Error in auto-updater:", error);
-    });
+  //   autoUpdater.on("error", (error) => {
+  //     log.error("Error in auto-updater:", error);
+  //   });
 
-    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-      try {
-        let message = process.platform === "win32" ? releaseNotes : releaseName;
-        mainWindow.webContents.send("updateDownloaded", message);
-      } catch (err) {
-        log.error("Error handling update-downloaded event:", err);
-        mainWindow.webContents.send("autoUpdateError", err);
-      }
-    });
-  }
+  //   autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+  //     try {
+  //       let message = process.platform === "win32" ? releaseNotes : releaseName;
+  //       mainWindow.webContents.send("updateDownloaded", message);
+  //     } catch (err) {
+  //       log.error("Error handling update-downloaded event:", err);
+  //       mainWindow.webContents.send("autoUpdateError", err);
+  //     }
+  //   });
+  // }
 
   console.log("Electron Main Complete");
 });
