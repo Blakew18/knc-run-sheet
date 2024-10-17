@@ -20,32 +20,23 @@ const RootStoreProvider: React.FC<{ children: React.ReactNode }> = ({
       setRootStore(store);
 
       // Listen for store changes
-      console.log("Listening for store changes");
-      console.log(
-        window.location.href.substring(window.location.href.length - 9)
-      );
+      const params = new URLSearchParams(window.location.search);
+      const windowType = params.get("window");
+      let isUpdateFromMain = windowType === "main";
 
-      let isUpdateFromMain = false;
-      if (
-        window.location.href.substring(window.location.href.length - 11) ===
-        "main_window"
-      ) {
-        console.log("This is the Main Window");
-        isUpdateFromMain = true;
-      }
+      let updatingFromIpc = false;
 
       onSnapshot(store, (snapshot) => {
-        console.log("STORE UPDATED");
+        if (updatingFromIpc) return; // Ignore updates from IPC
         if (isUpdateFromMain && ipcRenderer) {
-          console.log("Sending store update to main process");
           ipcRenderer.send("update-store", snapshot);
         }
       });
 
-      // Listen for updates from the main process
-      ipcRenderer?.on("store-updated", (event, snapshot) => {
-        console.log("Store Updated");
+      ipcRenderer.on("store-updated", (event, snapshot) => {
+        updatingFromIpc = true;
         applySnapshot(store, snapshot);
+        updatingFromIpc = false;
       });
     }
     start();

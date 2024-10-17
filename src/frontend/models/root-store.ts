@@ -296,8 +296,10 @@ export const setupRootStore = async () => {
     "run-sheet"
   ) {
     browserInstance = "Main";
+    console.log("MAIN WINDOW");
   } else {
     browserInstance = "Print";
+    console.log("Print");
   }
   const rs: RootStoreType = RootStoreModel.create({
     appName: "THIS IS AN APP",

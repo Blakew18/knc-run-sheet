@@ -25,11 +25,11 @@ const JobNotes: React.FC = observer(() => {
         <p>(Example: Use off cut, board due date, lots of small parts, etc.)</p>
       </span>
       <div className="w-full h-full m-2 p-2 outline text-xl text-pretty">
-        <p className="text-xl">
+        <div className="text-xl">
           {jobInformation.jobSetOutNotes.split("\n").map((line, index) => (
             <p key={index}>{line}</p>
           ))}
-        </p>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 {
   "name": "knc-run-sheet-beta",
   "productName": "knc-run-sheet-beta",
-  "version": "2.1.7-beta",
+  "version": "2.1.9-beta",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {

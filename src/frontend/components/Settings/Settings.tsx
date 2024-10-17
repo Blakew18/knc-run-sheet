@@ -14,7 +14,6 @@ import { useRootStore } from "../../providers/RootStoreProvider";
 import { RootStoreType } from "../../models/root-store";
 
 const Settings: React.FC = observer(() => {
-
   const [currentMenu, setCurrentMenu] = useState<string>("System Settings");
   const rootStore: RootStoreType = useRootStore();
 
@@ -66,8 +65,8 @@ const Settings: React.FC = observer(() => {
       </div>
       <MenuBar setCurrentMenu={setCurrentMenu} />
       <p className="absolute bottom-0 right-0 m-4">
-   Version: {rootStore.appVersion}
-  </p>
+        Version: {rootStore.appVersion}
+      </p>
     </div>
   );
 });
